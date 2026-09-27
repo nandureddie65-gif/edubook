@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="../assets/js/theme.js"></script>
+<title>EduBook &mdash; Upload Book</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/home.css">
+<link rel="stylesheet" href="../assets/css/books.css">
+<link rel="stylesheet" href="../assets/css/profile.css">
+<link rel="stylesheet" href="../assets/css/ai.css">
+<link rel="stylesheet" href="../assets/css/nav-drawer.css">
+</head>
+<body class="home-body">
+
+<div class="page">
+  <header class="page-header">
+    <a class="page-header__back" href="home.html" aria-label="Back to Home">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </a>
+    <div>
+      <h1 class="page-header__title">Upload Book</h1>
+      <p class="page-header__sub">It'll appear in Recent Uploads right away</p>
+    </div>
+  </header>
+
+  <main class="page-content">
+
+    <button type="button" class="ai-ocr-btn" id="ocr-scan-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
+      Scan cover photo (AI fills in the details)
+    </button>
+    <input type="file" accept="image/*" id="ocr-file-input" style="display:none;">
+    <p class="ai-ocr-status" id="ocr-status"></p>
+
+    <form id="upload-form" class="upload-form" novalidate>
+      <div class="field">
+        <label for="up-title">Book Title</label>
+        <input type="text" id="up-title" name="title" required>
+        <span class="field__error" data-error-for="up-title"></span>
+      </div>
+
+      <div class="field">
+        <label for="up-author">Author</label>
+        <input type="text" id="up-author" name="author" required>
+        <span class="field__error" data-error-for="up-author"></span>
+      </div>
+
+      <div class="field">
+        <label for="up-category">Category</label>
+        <input type="text" id="up-category" name="category" placeholder="e.g. Computer Science, MBA, Civil" required>
+        <span class="field__error" data-error-for="up-category"></span>
+      </div>
+
+      <div class="field">
+        <label for="up-isbn">ISBN</label>
+        <input type="text" id="up-isbn" name="isbn" inputmode="numeric" required>
+        <span class="field__error" data-error-for="up-isbn"></span>
+      </div>
+
+      <div class="field">
+        <label for="up-price">Price (&#8377;)</label>
+        <input type="number" id="up-price" name="price" min="1" step="1" required>
+        <span class="field__error" data-error-for="up-price"></span>
+        <div class="ai-price-hint" id="ai-price-hint"></div>
+      </div>
+
+      <div class="ai-warning-box" id="ai-duplicate-warning"></div>
+      <div class="ai-warning-box" id="ai-fraud-warning"></div>
+
+      <div class="field">
+        <label>Cover color</label>
+        <div class="cover-picker" id="cover-picker"></div>
+      </div>
+
+      <div class="form__status" data-status-for="upload-form" role="status" aria-live="polite"></div>
+
+      <button type="submit" class="btn btn--primary">Upload Book</button>
+    </form>
+
+    <div class="upload-success" id="upload-success" style="display:none;">
+      <div class="success-mark" aria-hidden="true">&#10003;</div>
+      <h2 class="card__title">Book uploaded</h2>
+      <p class="card__subtitle" id="upload-success-msg"></p>
+      <a class="btn btn--primary" href="home.html">Back to Home</a>
+    </div>
+
+  </main>
+</div>
+
+<!-- Duplicate-listing confirmation sheet -->
+<div class="pc-overlay" id="dup-overlay">
+  <div class="pc-overlay__sheet">
+    <h2 class="pc-overlay__title">This looks like a duplicate</h2>
+    <p class="pc-overlay__sub" id="dup-overlay-text"></p>
+    <div class="pc-overlay__actions">
+      <button class="btn--ghost" type="button" id="dup-cancel-btn">Edit listing</button>
+      <button class="btn--primary" type="button" id="dup-continue-btn">Upload anyway</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/js/books-data.js"></script>
+<script src="../assets/js/store.js"></script>
+<script src="../assets/js/render.js"></script>
+<script src="../assets/js/ai-engine.js"></script>
+<script src="../assets/js/ai-chat-widget.js"></script>
+<script>
+  (function () {
+    const PALETTE = [
+      ['#2A2E35', '#101215'], ['#3E6FD6', '#1F3E8C'], ['#C4433A', '#7C201B'],
+      ['#2F6F5E', '#173F35'], ['#C9A227', '#8C6E12'], ['#7C5CD6', '#4A3496'],
+    ];
+    let selectedCover = PALETTE[0];
+
+    const picker = document.getElementById('cover-picker');
+    picker.innerHTML = PALETTE.map((c, i) =>
+      `<button type="button" class="cover-swatch${i === 0 ? ' is-selected' : ''}" data-i="${i}" style="background:linear-gradient(160deg, ${c[0]}, ${c[1]})" aria-label="Cover color ${i + 1}"></button>`
+    ).join('');
+    picker.querySelectorAll('.cover-swatch').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        picker.querySelectorAll('.cover-swatch').forEach((b) => b.classList.remove('is-selected'));
+        btn.classList.add('is-selected');
+        selectedCover = PALETTE[Number(btn.dataset.i)];
+      });
+    });
+
+    function setError(fieldId, message) {
+      const el = document.querySelector(`[data-error-for="${fieldId}"]`);
+      const input = document.getElementById(fieldId);
+      if (el) el.textContent = message || '';
+      if (input) input.classList.toggle('has-error', Boolean(message));
+    }
+
+    function allExistingBooks() {
+      const sets = [];
+      if (typeof CATALOG_BOOKS !== 'undefined') sets.push(CATALOG_BOOKS);
+      if (typeof SELL_BOOKS !== 'undefined') sets.push(SELL_BOOKS);
+      if (typeof UPLOAD_BOOKS !== 'undefined') sets.push(UPLOAD_BOOKS);
+      let userUploads = [];
+      try { if (typeof Store !== 'undefined' && Store.getRecentUploads) userUploads = Store.getRecentUploads(); } catch (e) {}
+      return [].concat(...sets, userUploads);
+    }
+
+    // ---------------- AI: live price suggestion ----------------
+    const categoryInput = document.getElementById('up-category');
+    const priceInput = document.getElementById('up-price');
+    const priceHint = document.getElementById('ai-price-hint');
+
+    function updatePriceHint() {
+      const cat = categoryInput.value.trim();
+      if (!cat) { priceHint.classList.remove('is-visible'); return; }
+      const suggestion = AIEngine.suggestPrice(cat, allExistingBooks());
+      if (!suggestion) { priceHint.classList.remove('is-visible'); return; }
+      priceHint.innerHTML = 'AI suggested price: <strong>\u20b9' + suggestion.low + '&ndash;\u20b9' + suggestion.high +
+        '</strong> based on ' + suggestion.sampleSize + ' similar ' + (suggestion.sampleSize === 1 ? 'listing' : 'listings') + '.';
+      priceHint.classList.add('is-visible');
+      if (!priceInput.value) priceInput.placeholder = 'e.g. ' + Math.round((suggestion.low + suggestion.high) / 2);
+    }
+    categoryInput.addEventListener('input', updatePriceHint);
+
+    // ---------------- AI: OCR cover scan ----------------
+    const ocrBtn = document.getElementById('ocr-scan-btn');
+    const ocrInput = document.getElementById('ocr-file-input');
+    const ocrStatus = document.getElementById('ocr-status');
+    let tesseractLoadPromise = null;
+
+    function loadTesseract() {
+      if (window.Tesseract) return Promise.resolve();
+      if (tesseractLoadPromise) return tesseractLoadPromise;
+      tesseractLoadPromise = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+      return tesseractLoadPromise;
+    }
+
+    function parseOcrText(text) {
+      const lines = text.split('\n').map((l) => l.trim()).filter((l) => l.length > 2);
+      const isbnMatch = text.match(/(?:97[89][-\s]?)?\d{1,5}[-\s]?\d{1,7}[-\s]?\d{1,7}[-\s]?[\dXx]/);
+      let isbn = isbnMatch ? isbnMatch[0].replace(/[-\s]/g, '') : '';
+      let title = lines[0] || '';
+      let author = '';
+      const byLine = lines.find((l) => /^by\s+/i.test(l));
+      if (byLine) author = byLine.replace(/^by\s+/i, '');
+      else if (lines[1]) author = lines[1];
+      return { title, author, isbn };
+    }
+
+    ocrBtn.addEventListener('click', () => ocrInput.click());
+    ocrInput.addEventListener('change', async () => {
+      const file = ocrInput.files[0];
+      if (!file) return;
+      ocrStatus.textContent = 'Loading AI text recognition\u2026';
+      try {
+        await loadTesseract();
+        ocrStatus.textContent = 'Reading the cover\u2026';
+        const { data } = await window.Tesseract.recognize(file, 'eng');
+        const parsed = parseOcrText(data.text || '');
+        if (parsed.title) document.getElementById('up-title').value = parsed.title;
+        if (parsed.author) document.getElementById('up-author').value = parsed.author;
+        if (parsed.isbn) document.getElementById('up-isbn').value = parsed.isbn;
+        ocrStatus.textContent = 'Filled in from the photo \u2014 please double-check before submitting.';
+      } catch (e) {
+        ocrStatus.textContent = 'Couldn\u2019t read that photo. You can still enter details manually.';
+      }
+    });
+
+    // ---------------- Submit: duplicate + fraud checks, then upload ----------------
+    const form = document.getElementById('upload-form');
+    const dupOverlay = document.getElementById('dup-overlay');
+    const dupText = document.getElementById('dup-overlay-text');
+    const dupWarning = document.getElementById('ai-duplicate-warning');
+    const fraudWarning = document.getElementById('ai-fraud-warning');
+    let pendingBook = null;
+
+    function finalizeUpload(book) {
+      Store.addUserUpload(book);
+      form.style.display = 'none';
+      document.getElementById('upload-success-msg').textContent =
+        `"${book.title}" is now visible in Recent Uploads on the Home page.`;
+      document.getElementById('upload-success').style.display = 'block';
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      ['up-title', 'up-author', 'up-category', 'up-isbn', 'up-price'].forEach((id) => setError(id, ''));
+      dupWarning.classList.remove('is-visible');
+      fraudWarning.classList.remove('is-visible', 'ai-warning-box--danger');
+
+      const title = document.getElementById('up-title').value.trim();
+      const author = document.getElementById('up-author').value.trim();
+      const category = document.getElementById('up-category').value.trim();
+      const isbn = document.getElementById('up-isbn').value.trim();
+      const price = Number(document.getElementById('up-price').value);
+
+      let valid = true;
+      if (!title) { setError('up-title', 'Enter the book title.'); valid = false; }
+      if (!author) { setError('up-author', 'Enter the author.'); valid = false; }
+      if (!category) { setError('up-category', 'Enter a category.'); valid = false; }
+      if (!isbn) { setError('up-isbn', 'Enter the ISBN.'); valid = false; }
+      if (!price || price <= 0) { setError('up-price', 'Enter a valid price.'); valid = false; }
+      if (!valid) return;
+
+      const book = {
+        id: `u-${Date.now()}`,
+        title, author, category, isbn, price,
+        discountPrice: null,
+        status: 'Available',
+        cover: selectedCover,
+        source: 'upload',
+        uploadedAt: new Date().toISOString(),
+      };
+
+      // AI: duplicate check
+      const dupes = AIEngine.findDuplicates(book, allExistingBooks());
+      // AI: fraud/suspicious-listing check
+      const fraud = AIEngine.assessFraudRisk(book, allExistingBooks());
+      if (fraud.flags.length) {
+        fraudWarning.classList.toggle('ai-warning-box--danger', fraud.level === 'high');
+        fraudWarning.innerHTML = '<strong>AI review:</strong> ' +
+          (fraud.level === 'high' ? 'This listing has a few things worth double-checking:' : 'One thing worth a second look:') +
+          '<ul>' + fraud.flags.map((f) => `<li>${f}</li>`).join('') + '</ul>';
+        fraudWarning.classList.add('is-visible');
+      }
+
+      if (dupes.length) {
+        pendingBook = book;
+        dupText.textContent = `This looks similar to an existing listing: "${dupes[0].book.title}"${dupes[0].sameIsbn ? ' (same ISBN)' : ''}. Upload anyway, or go back and edit the details.`;
+        dupOverlay.classList.add('is-open');
+        return;
+      }
+
+      finalizeUpload(book);
+    });
+
+    document.getElementById('dup-cancel-btn').addEventListener('click', () => {
+      dupOverlay.classList.remove('is-open');
+      pendingBook = null;
+    });
+    document.getElementById('dup-continue-btn').addEventListener('click', () => {
+      dupOverlay.classList.remove('is-open');
+      if (pendingBook) finalizeUpload(pendingBook);
+      pendingBook = null;
+    });
+  })();
+</script>
+<script src="../assets/js/nav-drawer.js"></script>
+</body>
+</html>

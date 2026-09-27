@@ -1,0 +1,175 @@
+/* =========================================================================
+   EduBook — View Details button + Book Details page stylesheet
+   Additive; reuses the --pc-* tokens from css/profile.css.
+   ========================================================================= */
+
+/* ---- "View Details" button appended to every book card ---- */
+.vd-btn {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 8px;
+  padding: 8px 10px;
+  text-align: center;
+  border-radius: 8px;
+  border: 1px solid var(--pc-border, #E6DFCF);
+  background: var(--pc-surface, #fff);
+  color: var(--pc-green, #2F6F5E);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.vd-btn:hover { background: var(--pc-bg, #F5EFE2); border-color: var(--pc-green, #2F6F5E); }
+
+/* =========================== Book Details page =========================== */
+.bd-page .page-content { padding-bottom: 100px; } /* room for the sticky action bar */
+
+.bd-cover {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  border-radius: var(--pc-radius, 16px);
+  display: flex;
+  align-items: flex-end;
+  padding: 20px;
+  box-sizing: border-box;
+  color: #fff;
+  box-shadow: var(--pc-shadow);
+  position: relative;
+  overflow: hidden;
+}
+.bd-cover__title {
+  position: relative;
+  z-index: 1;
+}
+.bd-cover::after {
+  /* Scrim so the title stays legible over a real photo, not just a flat gradient */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(0,0,0,0.55), rgba(0,0,0,0) 55%);
+  pointer-events: none;
+}
+.bd-cover__title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.35);
+}
+
+.bd-header {
+  margin-top: 16px;
+}
+.bd-title { font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 600; margin: 0 0 4px; color: var(--pc-ink); }
+.bd-author { color: var(--pc-muted); margin: 0 0 10px; font-size: 0.95rem; }
+
+.bd-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 16px;
+  padding: 16px;
+}
+.bd-meta-item__label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--pc-muted); }
+.bd-meta-item__value { font-size: 0.9rem; font-weight: 600; color: var(--pc-ink); margin-top: 2px; }
+
+.bd-price-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px;
+}
+.bd-price { font-family: 'Fraunces', serif; font-size: 1.4rem; font-weight: 600; color: var(--pc-green); }
+.bd-price__original { font-size: 0.9rem; color: var(--pc-muted); text-decoration: line-through; margin-left: 8px; }
+
+.bd-desc { padding: 4px 16px 16px; line-height: 1.6; font-size: 0.92rem; color: var(--pc-ink); }
+
+/* ---- Rating summary ---- */
+.bd-rating-summary {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 18px 16px;
+}
+.bd-rating-summary__score { font-family: 'Fraunces', serif; font-size: 2.4rem; font-weight: 600; color: var(--pc-ink); line-height: 1; }
+.bd-rating-summary__stars { color: var(--pc-gilt); font-size: 1.1rem; margin: 4px 0 2px; display: flex; align-items: center; gap: 2px; }
+.bd-rating-summary__count { font-size: 0.78rem; color: var(--pc-muted); }
+
+/* ---- Distribution bar graph ---- */
+.bd-dist { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 8px; }
+.bd-dist-row { display: flex; align-items: center; gap: 10px; font-size: 0.78rem; color: var(--pc-muted); }
+.bd-dist-row__label { width: 42px; flex-shrink: 0; display: flex; align-items: center; justify-content: flex-end; gap: 3px; color: var(--pc-gilt); }
+.bd-dist-row__track { flex: 1; height: 8px; border-radius: 999px; background: var(--pc-bg); overflow: hidden; }
+.bd-dist-row__fill { height: 100%; background: var(--pc-gilt); border-radius: 999px; }
+.bd-dist-row__count { width: 30px; flex-shrink: 0; text-align: left; }
+
+/* ---- Reviews ---- */
+.bd-review {
+  display: flex; gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--pc-border);
+}
+.bd-review:last-child { border-bottom: none; }
+.bd-review__avatar {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  background: var(--pc-green); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Fraunces', serif; font-weight: 600; font-size: 0.9rem;
+}
+.bd-review__name { font-weight: 600; font-size: 0.88rem; }
+.bd-review__stars { color: var(--pc-gilt); font-size: 0.8rem; margin: 2px 0 4px; display: flex; align-items: center; gap: 2px; }
+.bd-review__date { font-size: 0.72rem; color: var(--pc-muted); float: right; }
+.bd-review__comment { font-size: 0.86rem; color: var(--pc-ink); margin: 0; line-height: 1.45; }
+
+/* ---- Sticky action bar ---- */
+.bd-action-bar {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  display: flex; gap: 10px;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  background: var(--pc-surface);
+  border-top: 1px solid var(--pc-border);
+  box-shadow: 0 -6px 20px rgba(0,0,0,0.06);
+  z-index: 40;
+}
+.bd-action-bar button { flex: 1; }
+.bd-action-bar__cart {
+  background: transparent;
+  border: 1px solid var(--pc-green);
+  color: var(--pc-green);
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 13px 10px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+.bd-action-bar__cart:hover { background: var(--pc-bg); }
+.bd-action-bar__cart:active, .bd-action-bar__buy:active { transform: scale(0.98); }
+.bd-action-bar__buy {
+  background: var(--pc-green);
+  border: none;
+  color: #fff;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 13px 10px;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+.bd-action-bar__buy:hover { filter: brightness(1.08); }
+
+.bd-toast {
+  position: fixed;
+  left: 50%; bottom: 90px;
+  transform: translateX(-50%) translateY(10px);
+  background: var(--pc-ink, #23201B);
+  color: var(--pc-bg, #F5EFE2);
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 80;
+}
+.bd-toast.is-visible { opacity: 1; transform: translateX(-50%) translateY(0); }

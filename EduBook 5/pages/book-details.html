@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="../assets/js/theme.js"></script>
+<title>EduBook &mdash; Book Details</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/home.css">
+<link rel="stylesheet" href="../assets/css/books.css">
+<link rel="stylesheet" href="../assets/css/profile.css">
+<link rel="stylesheet" href="../assets/css/ai.css">
+<link rel="stylesheet" href="../assets/css/details.css">
+<link rel="stylesheet" href="../assets/css/nav-drawer.css">
+</head>
+<body class="home-body">
+
+<div class="page pc-page bd-page">
+  <header class="page-header">
+    <a class="page-header__back" href="javascript:history.back()" aria-label="Back">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </a>
+    <h1 class="page-header__title">Book Details</h1>
+  </header>
+
+  <main class="page-content" id="bd-content">
+    <div class="pc-empty" id="bd-not-found" style="display:none;">
+      This book couldn&rsquo;t be found &mdash; it may have been removed or sold.
+      <br><a class="pc-link-btn" href="explore.html">Browse all books</a>
+    </div>
+
+    <div id="bd-body" style="display:none;">
+      <div class="bd-cover" id="bd-cover">
+        <span class="bd-cover__title" id="bd-cover-title"></span>
+      </div>
+
+      <div class="bd-header">
+        <h2 class="bd-title" id="bd-title"></h2>
+        <p class="bd-author" id="bd-author"></p>
+      </div>
+
+      <div class="pc-card bd-meta-grid" id="bd-meta-grid"></div>
+
+      <div class="pc-card bd-price-row">
+        <div>
+          <span class="bd-price" id="bd-price"></span>
+          <span class="bd-price__original" id="bd-price-original"></span>
+        </div>
+        <span class="pc-badge" id="bd-status"></span>
+      </div>
+
+      <div class="pc-section">
+        <p class="pc-section__title">Description <span class="ai-badge">AI</span></p>
+        <div class="pc-card bd-desc" id="bd-description">Loading description&hellip;</div>
+      </div>
+
+      <div class="pc-section">
+        <p class="pc-section__title">Ratings &amp; Reviews</p>
+        <div class="pc-card">
+          <div class="bd-rating-summary">
+            <div>
+              <div class="bd-rating-summary__score" id="bd-avg-score"></div>
+              <div class="bd-rating-summary__stars" id="bd-avg-stars"></div>
+              <div class="bd-rating-summary__count" id="bd-review-count"></div>
+            </div>
+            <div class="bd-dist" id="bd-dist" style="flex:1;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pc-section">
+        <p class="pc-section__title">Customer Reviews</p>
+        <div class="pc-card" id="bd-reviews"></div>
+      </div>
+    </div>
+  </main>
+
+  <div class="bd-action-bar" id="bd-action-bar" style="display:none;">
+    <button type="button" class="bd-action-bar__cart" id="bd-add-cart-btn">Add to Cart</button>
+    <button type="button" class="bd-action-bar__buy" id="bd-buy-now-btn">Buy Now</button>
+  </div>
+  <div class="bd-toast" id="bd-toast"></div>
+</div>
+
+<script src="../assets/js/books-data.js"></script>
+<script src="../assets/js/store.js"></script>
+<script src="../assets/js/render.js"></script>
+<script src="../assets/js/ai-engine.js"></script>
+<script src="../assets/js/profile-store.js"></script>
+<script src="../assets/js/book-meta.js"></script>
+<script src="../assets/js/ai-chat-widget.js"></script>
+<script>
+  (function () {
+    function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+    function coverStyle(book) {
+      var c = book.cover || book.coverColors || ['#2A2E35', '#101215'];
+      return 'background:linear-gradient(160deg,' + c[0] + ',' + c[1] + ')';
+    }
+    function starIcon(filled) {
+      return '<svg class="star-icon' + (filled ? ' star-icon--filled' : '') + '" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true" ' +
+        (filled ? 'fill="currentColor"' : 'fill="none" stroke="currentColor" stroke-width="1.6"') +
+        '><path d="M12 3l2.7 5.6 6.1.9-4.4 4.4 1 6.1L12 17l-5.4 3 1-6.1-4.4-4.4 6.1-.9z" stroke-linejoin="round"/></svg>';
+    }
+    function starString(n) {
+      var full = Math.round(n);
+      var html = '';
+      for (var i = 1; i <= 5; i++) html += starIcon(i <= full);
+      return html;
+    }
+
+    var params = new URLSearchParams(window.location.search);
+    var id = params.get('id');
+    var book = id ? ProfileStore.findBookById(id) : null;
+
+    if (!book) {
+      document.getElementById('bd-not-found').style.display = 'block';
+      return;
+    }
+
+    document.getElementById('bd-body').style.display = 'block';
+    document.getElementById('bd-action-bar').style.display = 'flex';
+
+    // ---- Cover / title / author ----
+    var coverEl = document.getElementById('bd-cover');
+    coverEl.style.cssText += coverStyle(book);
+    coverEl.insertAdjacentHTML('afterbegin', Render.coverImgHtml(book, 'L'));
+    document.getElementById('bd-cover-title').textContent = book.title;
+    document.getElementById('bd-title').textContent = book.title;
+    document.getElementById('bd-author').textContent = 'by ' + (book.author || 'Unknown author');
+    document.title = 'EduBook \u2014 ' + book.title;
+
+    // ---- Meta grid: category, edition, publisher, ISBN ----
+    var meta = BookMeta.getPublisherAndEdition(book);
+    var metaItems = [
+      ['Category', book.category || '\u2014'],
+      ['Edition', meta.edition],
+      ['Publisher', meta.publisher],
+      ['ISBN', book.isbn || '\u2014']
+    ];
+    document.getElementById('bd-meta-grid').innerHTML = metaItems.map(function (m) {
+      return '<div><div class="bd-meta-item__label">' + esc(m[0]) + '</div><div class="bd-meta-item__value">' + esc(m[1]) + '</div></div>';
+    }).join('');
+
+    // ---- Price / availability ----
+    document.getElementById('bd-price').textContent = '\u20b9' + (book.discountPrice != null ? book.discountPrice : book.price);
+    if (book.discountPrice != null) {
+      document.getElementById('bd-price-original').textContent = '\u20b9' + book.price;
+    }
+    var statusEl = document.getElementById('bd-status');
+    var status = book.status || 'Available';
+    statusEl.textContent = status;
+    statusEl.className = 'pc-badge ' + (status === 'Sold' ? 'pc-badge--sold' : 'pc-badge--available');
+
+    // ---- AI description ----
+    AIEngine.summarize(book).then(function (summary) {
+      var extra = ' This ' + (book.category || 'course') + ' title is commonly used by students preparing coursework and assignments in the subject, and second-hand copies like this one are a budget-friendly way to get the same content as buying new.';
+      document.getElementById('bd-description').innerHTML = '<p style="margin:0 0 8px;">' + esc(summary) + '</p><p style="margin:0; color:var(--pc-muted);">' + esc(extra) + '</p>';
+    });
+
+    // ---- Ratings + distribution + reviews ----
+    var rating = BookMeta.getRatingData(book);
+    document.getElementById('bd-avg-score').textContent = rating.average.toFixed(1);
+    document.getElementById('bd-avg-stars').innerHTML = starString(rating.average);
+    document.getElementById('bd-review-count').textContent = rating.total + ' rating' + (rating.total === 1 ? '' : 's');
+
+    var maxCount = Math.max.apply(null, [5, 4, 3, 2, 1].map(function (s) { return rating.distribution[s]; }));
+    document.getElementById('bd-dist').innerHTML = [5, 4, 3, 2, 1].map(function (star) {
+      var count = rating.distribution[star];
+      var pct = maxCount ? Math.round((count / maxCount) * 100) : 0;
+      return '' +
+        '<div class="bd-dist-row">' +
+          '<span class="bd-dist-row__label">' + star + starIcon(true) + '</span>' +
+          '<span class="bd-dist-row__track"><span class="bd-dist-row__fill" style="width:' + pct + '%;"></span></span>' +
+          '<span class="bd-dist-row__count">' + count + '</span>' +
+        '</div>';
+    }).join('');
+
+    var reviewsEl = document.getElementById('bd-reviews');
+    if (!rating.reviews.length) {
+      reviewsEl.innerHTML = '<div class="pc-empty">No written reviews yet.</div>';
+    } else {
+      reviewsEl.innerHTML = rating.reviews.map(function (r) {
+        var when = r.daysAgo < 30 ? (r.daysAgo + ' day' + (r.daysAgo === 1 ? '' : 's') + ' ago')
+          : (Math.round(r.daysAgo / 30) + ' month' + (Math.round(r.daysAgo / 30) === 1 ? '' : 's') + ' ago');
+        return '' +
+          '<div class="bd-review">' +
+            '<div class="bd-review__avatar">' + esc(r.name.charAt(0)) + '</div>' +
+            '<div style="flex:1; min-width:0;">' +
+              '<span class="bd-review__date">' + when + '</span>' +
+              '<div class="bd-review__name">' + esc(r.name) + '</div>' +
+              '<div class="bd-review__stars">' + starString(r.star) + '</div>' +
+              '<p class="bd-review__comment">' + esc(r.comment) + '</p>' +
+            '</div>' +
+          '</div>';
+      }).join('');
+    }
+
+    // ---- Toast ----
+    var toast = document.getElementById('bd-toast');
+    var toastTimer;
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add('is-visible');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { toast.classList.remove('is-visible'); }, 1800);
+    }
+
+    // ---- Add to Cart / Buy Now ----
+    document.getElementById('bd-add-cart-btn').addEventListener('click', function () {
+      ProfileStore.addToCart(book.id, book, 1);
+      var count = ProfileStore.getCart().reduce(function (s, l) { return s + l.qty; }, 0);
+      showToast('Added to cart \u2014 ' + count + ' item' + (count === 1 ? '' : 's') + ' in cart');
+    });
+    document.getElementById('bd-buy-now-btn').addEventListener('click', function () {
+      var order = ProfileStore.buyNow(book, 1);
+      showToast('Order ' + order.id + ' placed!');
+      setTimeout(function () { window.location.href = 'orders.html'; }, 700);
+    });
+  })();
+</script>
+<script src="../assets/js/nav-drawer.js"></script>
+</body>
+</html>

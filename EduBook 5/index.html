@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="assets/js/theme.js"></script>
+<title>EduBook &mdash; Sign in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/profile.css">
+<link rel="stylesheet" href="assets/css/ai.css">
+<link rel="stylesheet" href="assets/css/nav-drawer.css">
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- ============ LEFT PANEL: brand / bookshelf ============ -->
+  <aside class="cover" aria-hidden="true">
+    <div class="cover__inner">
+      <div class="wordmark">
+        <span class="wordmark__mark">Ed</span><span class="wordmark__mark wordmark__mark--accent">u</span><span class="wordmark__mark">Book</span>
+      </div>
+      <p class="tagline">The academic marketplace where every course finds its textbook.</p>
+
+      <div class="shelf" role="presentation">
+        <div class="shelf__row">
+          <div class="spine spine--1"><span>MATH 201</span></div>
+          <div class="spine spine--2"><span>HIST 110</span></div>
+          <div class="spine spine--3"><span>CHEM 150</span></div>
+          <div class="spine spine--4"><span>ECON 305</span></div>
+          <div class="spine spine--5"><span>PSYC 220</span></div>
+          <div class="spine spine--6"><span>LIT 240</span></div>
+        </div>
+        <div class="shelf__ledge"></div>
+      </div>
+
+      <p class="cover__foot">Buy, sell, and trade textbooks across your campus.</p>
+    </div>
+  </aside>
+
+  <!-- ============ RIGHT PANEL: auth card ============ -->
+  <main class="panel">
+    <div class="card">
+
+      <!-- Bookmark ribbon tab toggle -->
+      <div class="ribbon-toggle" role="tablist" aria-label="Choose sign in or create account">
+        <button class="ribbon-toggle__btn is-active" type="button" role="tab" aria-selected="true" data-target="view-signin">Sign In</button>
+        <button class="ribbon-toggle__btn" type="button" role="tab" aria-selected="false" data-target="view-signup">Create Account</button>
+        <span class="ribbon-toggle__slider" aria-hidden="true"></span>
+      </div>
+
+      <!-- ---------------- Sign In ---------------- -->
+      <section id="view-signin" class="view is-visible" aria-labelledby="signin-heading">
+        <h1 id="signin-heading" class="card__title">Welcome back</h1>
+        <p class="card__subtitle">Sign in with your registered email to continue.</p>
+
+        <form id="form-signin" novalidate>
+          <div class="field">
+            <label for="signin-email">Email ID</label>
+            <input type="email" id="signin-email" name="email" autocomplete="email" required>
+            <span class="field__error" data-error-for="signin-email"></span>
+          </div>
+
+          <div class="field">
+            <label for="signin-password">Password</label>
+            <div class="field__with-action">
+              <input type="password" id="signin-password" name="password" autocomplete="current-password" required>
+              <button type="button" class="field__toggle" data-toggle-password="signin-password" aria-label="Show password">Show</button>
+            </div>
+            <span class="field__error" data-error-for="signin-password"></span>
+          </div>
+
+          <button type="button" class="link-btn forgot-link" data-open-forgot>Forgot password?</button>
+
+          <div class="form__status" data-status-for="form-signin" role="status" aria-live="polite"></div>
+
+          <button type="submit" class="btn btn--primary">Sign In</button>
+        </form>
+      </section>
+
+      <!-- ---------------- Create Account ---------------- -->
+      <section id="view-signup" class="view" aria-labelledby="signup-heading">
+        <h1 id="signup-heading" class="card__title">Create your account</h1>
+        <p class="card__subtitle">Join EduBook to buy, sell, and trade textbooks.</p>
+
+        <form id="form-signup" novalidate>
+          <div class="field">
+            <label for="signup-username">Username</label>
+            <input type="text" id="signup-username" name="username" autocomplete="username" minlength="3" maxlength="50" required>
+            <span class="field__error" data-error-for="signup-username"></span>
+          </div>
+
+          <div class="field">
+            <label for="signup-email">Email ID</label>
+            <input type="email" id="signup-email" name="email" autocomplete="email" required>
+            <span class="field__error" data-error-for="signup-email"></span>
+          </div>
+
+          <div class="field">
+            <label for="signup-password">Password</label>
+            <div class="field__with-action">
+              <input type="password" id="signup-password" name="password" autocomplete="new-password" minlength="8" required>
+              <button type="button" class="field__toggle" data-toggle-password="signup-password" aria-label="Show password">Show</button>
+            </div>
+            <span class="field__hint">At least 8 characters, with a letter and a number.</span>
+            <span class="field__error" data-error-for="signup-password"></span>
+          </div>
+
+          <div class="field">
+            <label for="signup-confirm">Confirm Password</label>
+            <input type="password" id="signup-confirm" name="confirmPassword" autocomplete="new-password" required>
+            <span class="field__error" data-error-for="signup-confirm"></span>
+          </div>
+
+          <div class="form__status" data-status-for="form-signup" role="status" aria-live="polite"></div>
+
+          <button type="submit" class="btn btn--primary">Create Account</button>
+        </form>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- ============ Forgot Password overlay ============ -->
+<div class="overlay" id="forgot-overlay" aria-hidden="true">
+  <div class="overlay__scrim" data-close-forgot></div>
+  <div class="overlay__card" role="dialog" aria-modal="true" aria-labelledby="forgot-heading">
+    <button type="button" class="overlay__close" data-close-forgot aria-label="Close">&times;</button>
+
+    <div class="steps" aria-hidden="true">
+      <span class="steps__dot is-active" data-step-dot="1"></span>
+      <span class="steps__dot" data-step-dot="2"></span>
+      <span class="steps__dot" data-step-dot="3"></span>
+    </div>
+
+    <!-- Step 1: enter email -->
+    <div class="step is-visible" data-step="1">
+      <h2 id="forgot-heading" class="card__title">Reset your password</h2>
+      <p class="card__subtitle">Enter your registered email address and we'll send you a verification code.</p>
+      <form id="form-send-otp" novalidate>
+        <div class="field">
+          <label for="forgot-email">Email ID</label>
+          <input type="email" id="forgot-email" name="email" autocomplete="email" required>
+          <span class="field__error" data-error-for="forgot-email"></span>
+        </div>
+        <div class="form__status" data-status-for="form-send-otp" role="status" aria-live="polite"></div>
+        <button type="submit" class="btn btn--primary">Send Code</button>
+      </form>
+    </div>
+
+    <!-- Step 2: verify OTP -->
+    <div class="step" data-step="2">
+      <h2 class="card__title">Check your email</h2>
+      <p class="card__subtitle">Enter the 6-digit code we sent to <span data-echo="email">your email</span>.</p>
+      <form id="form-verify-otp" novalidate>
+        <div class="field">
+          <label for="forgot-otp">Verification code</label>
+          <input type="text" id="forgot-otp" name="otp" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" required class="otp-input">
+          <span class="field__error" data-error-for="forgot-otp"></span>
+        </div>
+        <div class="form__status" data-status-for="form-verify-otp" role="status" aria-live="polite"></div>
+        <button type="submit" class="btn btn--primary">Verify Code</button>
+        <button type="button" class="link-btn" data-resend-otp>Resend code</button>
+      </form>
+    </div>
+
+    <!-- Step 3: new password -->
+    <div class="step" data-step="3">
+      <h2 class="card__title">Create a new password</h2>
+      <p class="card__subtitle">Choose a new password for your account.</p>
+      <form id="form-reset-password" novalidate>
+        <div class="field">
+          <label for="reset-password">New password</label>
+          <input type="password" id="reset-password" name="password" autocomplete="new-password" minlength="8" required>
+          <span class="field__hint">At least 8 characters, with a letter and a number.</span>
+          <span class="field__error" data-error-for="reset-password"></span>
+        </div>
+        <div class="field">
+          <label for="reset-confirm">Confirm new password</label>
+          <input type="password" id="reset-confirm" name="confirmPassword" autocomplete="new-password" required>
+          <span class="field__error" data-error-for="reset-confirm"></span>
+        </div>
+        <div class="form__status" data-status-for="form-reset-password" role="status" aria-live="polite"></div>
+        <button type="submit" class="btn btn--primary">Update Password</button>
+      </form>
+    </div>
+
+    <!-- Step 4: success -->
+    <div class="step" data-step="4">
+      <div class="success-mark" aria-hidden="true">&#10003;</div>
+      <h2 class="card__title">Password updated</h2>
+      <p class="card__subtitle">Your password has been updated successfully. You can now sign in.</p>
+      <button type="button" class="btn btn--primary" data-close-forgot>Back to Sign In</button>
+    </div>
+
+  </div>
+</div>
+
+<script src="assets/js/app.js"></script>
+<script src="assets/js/ai-engine.js"></script>
+<script src="assets/js/ai-chat-widget.js"></script>
+<script src="assets/js/nav-drawer.js"></script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduBook &mdash; My Orders</title>
+<script src="../assets/js/theme.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/home.css">
+<link rel="stylesheet" href="../assets/css/books.css">
+<link rel="stylesheet" href="../assets/css/profile.css">
+<link rel="stylesheet" href="../assets/css/ai.css">
+<link rel="stylesheet" href="../assets/css/nav-drawer.css">
+</head>
+<body class="home-body">
+
+<div class="page pc-page">
+  <header class="page-header">
+    <a class="page-header__back" href="profile.html" aria-label="Back to Profile">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </a>
+    <div>
+      <h1 class="page-header__title">My Orders</h1>
+      <p class="page-header__sub" id="orders-count"></p>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <div class="pc-card" id="orders-card"></div>
+  </main>
+</div>
+
+<script src="../assets/js/books-data.js"></script>
+<script src="../assets/js/store.js"></script>
+<script src="../assets/js/profile-store.js"></script>
+<script>
+  (function () {
+    function badgeClass(status) {
+      return { Processing: 'pc-badge--processing', Shipped: 'pc-badge--shipped', Delivered: 'pc-badge--delivered', Cancelled: 'pc-badge--cancelled' }[status] || 'pc-badge--processing';
+    }
+    function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+    function fmtDate(iso) {
+      var d = new Date(iso);
+      return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    var orders = ProfileStore.getOrders();
+    document.getElementById('orders-count').textContent = orders.length ? (orders.length + ' order' + (orders.length === 1 ? '' : 's')) : '';
+    var card = document.getElementById('orders-card');
+
+    if (!orders.length) {
+      card.innerHTML = '<div class="pc-empty">You haven\u2019t placed any orders yet. Books you check out from My Cart will show up here.</div>';
+      return;
+    }
+
+    card.innerHTML = orders.map(function (o) {
+      var itemsText = o.items.map(function (i) { return esc(i.title) + ' \u00d7' + i.qty; }).join(', ');
+      return '' +
+        '<div class="pc-order">' +
+          '<div class="pc-order__top">' +
+            '<span class="pc-order__id">' + esc(o.id) + '</span>' +
+            '<span class="pc-badge ' + badgeClass(o.status) + '">' + esc(o.status) + '</span>' +
+          '</div>' +
+          '<p class="pc-order__items">' + itemsText + '</p>' +
+          '<div class="pc-order__bottom">' +
+            '<span class="pc-order__date">' + fmtDate(o.placedAt) + '</span>' +
+            '<span class="pc-order__total">\u20b9' + o.total + '</span>' +
+          '</div>' +
+        '</div>';
+    }).join('');
+  })();
+</script>
+<script src="../assets/js/ai-engine.js"></script>
+<script src="../assets/js/ai-chat-widget.js"></script>
+<script src="../assets/js/nav-drawer.js"></script>
+</body>
+</html>

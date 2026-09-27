@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduBook &mdash; Edit Profile</title>
+<script src="../assets/js/theme.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/home.css">
+<link rel="stylesheet" href="../assets/css/books.css">
+<link rel="stylesheet" href="../assets/css/profile.css">
+<link rel="stylesheet" href="../assets/css/ai.css">
+<link rel="stylesheet" href="../assets/css/nav-drawer.css">
+</head>
+<body class="home-body">
+
+<div class="page pc-page">
+  <header class="page-header">
+    <a class="page-header__back" href="profile.html" aria-label="Back to Profile">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </a>
+    <h1 class="page-header__title">Edit Profile</h1>
+  </header>
+
+  <main class="page-content">
+    <div class="pc-card" style="padding:20px;">
+      <div class="pc-photo-row">
+        <span class="avatar avatar--lg" id="avatar-preview">A</span>
+        <div class="pc-photo-actions">
+          <button type="button" class="pc-link-btn" id="upload-photo-btn">Upload photo</button>
+          <button type="button" class="pc-link-btn pc-link-btn--danger" id="remove-photo-btn">Remove photo</button>
+        </div>
+        <input type="file" accept="image/*" id="photo-input" style="display:none;">
+      </div>
+
+      <form id="edit-profile-form" novalidate>
+        <div class="field">
+          <label for="ep-name">Full Name</label>
+          <input type="text" id="ep-name" required>
+        </div>
+        <div class="field">
+          <label for="ep-email">Email Address</label>
+          <input type="email" id="ep-email" required>
+        </div>
+        <div class="field">
+          <label for="ep-phone">Phone Number</label>
+          <input type="tel" id="ep-phone" placeholder="e.g. 9876543210">
+        </div>
+        <div class="field">
+          <label for="ep-dob">Date of Birth</label>
+          <input type="date" id="ep-dob">
+        </div>
+
+        <div class="pc-status" id="ep-status"></div>
+        <button type="submit" class="btn btn--primary">Save Changes</button>
+      </form>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/js/profile-store.js"></script>
+<script>
+  (function () {
+    var profile = ProfileStore.getProfile();
+    document.getElementById('ep-name').value = profile.fullName || '';
+    document.getElementById('ep-email').value = profile.email || '';
+    document.getElementById('ep-phone').value = profile.phone || '';
+    document.getElementById('ep-dob').value = profile.dob || '';
+
+    var avatarPreview = document.getElementById('avatar-preview');
+    function renderAvatar() {
+      var p = ProfileStore.getProfile();
+      if (p.photo) {
+        avatarPreview.innerHTML = '<img src="' + p.photo + '" alt="">';
+      } else {
+        avatarPreview.textContent = (p.fullName || '?').trim().charAt(0).toUpperCase() || '?';
+      }
+    }
+    renderAvatar();
+
+    var photoInput = document.getElementById('photo-input');
+    document.getElementById('upload-photo-btn').addEventListener('click', function () { photoInput.click(); });
+    photoInput.addEventListener('change', function () {
+      var file = photoInput.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function () {
+        ProfileStore.saveProfile({ photo: reader.result });
+        renderAvatar();
+      };
+      reader.readAsDataURL(file);
+    });
+    document.getElementById('remove-photo-btn').addEventListener('click', function () {
+      ProfileStore.saveProfile({ photo: null });
+      renderAvatar();
+    });
+
+    document.getElementById('edit-profile-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var name = document.getElementById('ep-name').value.trim();
+      var email = document.getElementById('ep-email').value.trim();
+      var phone = document.getElementById('ep-phone').value.trim();
+      var dob = document.getElementById('ep-dob').value;
+      var statusEl = document.getElementById('ep-status');
+
+      if (!name || !email) {
+        statusEl.textContent = 'Full name and email are required.';
+        statusEl.className = 'pc-status pc-status--error';
+        return;
+      }
+      ProfileStore.saveProfile({ fullName: name, email: email, phone: phone, dob: dob });
+      statusEl.textContent = 'Profile updated.';
+      statusEl.className = 'pc-status pc-status--ok';
+      setTimeout(function () { window.location.href = 'profile.html'; }, 500);
+    });
+  })();
+</script>
+<script src="../assets/js/ai-engine.js"></script>
+<script src="../assets/js/ai-chat-widget.js"></script>
+<script src="../assets/js/nav-drawer.js"></script>
+</body>
+</html>

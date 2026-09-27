@@ -1,0 +1,489 @@
+/* =========================================================================
+   EduBook — Profile feature stylesheet
+   Additive only: does not redeclare the site's real --ink/--parchment/etc.
+   tokens, it just reads them (with safe fallbacks) so this feature matches
+   the existing bookish / parchment aesthetic described in the project README.
+   ========================================================================= */
+
+:root {
+  --pc-bg: var(--parchment, #F5EFE2);
+  --pc-surface: #FFFFFF;
+  --pc-ink: var(--ink, #23201B);
+  --pc-muted: #7A7362;
+  --pc-border: #E6DFCF;
+  --pc-green: var(--green, #2F6F5E);
+  --pc-green-ink: #173F35;
+  --pc-gilt: var(--gilt, #C9A227);
+  --pc-danger: #B3392C;
+  --pc-danger-bg: #FBEAE7;
+  --pc-radius: 16px;
+  --pc-radius-sm: 10px;
+  --pc-shadow: 0 1px 2px rgba(35, 32, 27, 0.06), 0 8px 24px rgba(35, 32, 27, 0.06);
+}
+
+/* ---- Dark mode: toggled by js/theme.js via <html data-theme="dark"> ---- */
+html[data-theme="dark"] {
+  --pc-bg: #14171A;
+  --pc-surface: #1D2226;
+  --pc-ink: #EDEFEC;
+  --pc-muted: #9AA19C;
+  --pc-border: #2B3136;
+  --pc-green: #4FAE95;
+  --pc-green-ink: #DCFDF3;
+  --pc-gilt: #E0BB4B;
+  --pc-danger: #E2685A;
+  --pc-danger-bg: #35201F;
+  --pc-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+html[data-theme="dark"] body.home-body,
+html[data-theme="dark"] body {
+  background: var(--pc-bg);
+  color: var(--pc-ink);
+}
+html[data-theme="dark"] .page-header,
+html[data-theme="dark"] .topbar {
+  background: var(--pc-bg);
+  border-color: var(--pc-border);
+}
+html[data-theme="dark"] .icon-btn,
+html[data-theme="dark"] .page-header__back {
+  color: var(--pc-ink);
+}
+
+/* ---------------------------- Layout helpers ---------------------------- */
+.pc-page .page-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 40px;
+}
+
+.pc-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pc-section__title {
+  font-family: 'Fraunces', serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--pc-muted);
+  text-transform: uppercase;
+  margin: 4px 2px 0;
+}
+
+.pc-card {
+  background: var(--pc-surface);
+  border: 1px solid var(--pc-border);
+  border-radius: var(--pc-radius);
+  box-shadow: var(--pc-shadow);
+}
+
+/* ------------------------------ Profile hero ----------------------------- */
+.profile-hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(160deg, var(--pc-green), var(--pc-green-ink));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fraunces', serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.avatar--lg { width: 88px; height: 88px; font-size: 1.8rem; }
+
+.profile-hero__info { flex: 1; min-width: 0; }
+.profile-hero__name {
+  font-family: 'Fraunces', serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0 0 2px;
+  color: var(--pc-ink);
+}
+.profile-hero__email {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--pc-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.profile-hero__edit {
+  flex-shrink: 0;
+  border: 1px solid var(--pc-border);
+  background: transparent;
+  color: var(--pc-green);
+  font-weight: 600;
+  font-size: 0.82rem;
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.profile-hero__edit:hover { background: var(--pc-bg); }
+
+/* -------------------------------- List rows ------------------------------ */
+.pc-list { list-style: none; margin: 0; padding: 0; }
+
+.pc-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  text-decoration: none;
+  color: var(--pc-ink);
+  border-bottom: 1px solid var(--pc-border);
+  background: transparent;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+.pc-row:last-child { border-bottom: none; }
+
+.pc-row__icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--pc-bg);
+  color: var(--pc-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.pc-row__icon--danger { color: var(--pc-danger); }
+
+.pc-row__body { flex: 1; min-width: 0; }
+.pc-row__label { font-weight: 600; font-size: 0.95rem; }
+.pc-row__sub { font-size: 0.8rem; color: var(--pc-muted); margin-top: 1px; }
+
+.pc-row__chevron { color: var(--pc-muted); flex-shrink: 0; }
+.pc-row--danger .pc-row__label { color: var(--pc-danger); }
+
+/* --------------------------------- Toggle -------------------------------- */
+.pc-toggle {
+  position: relative;
+  width: 46px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--pc-border);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+.pc-toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  transition: transform 0.15s ease;
+}
+.pc-toggle.is-on { background: var(--pc-green); }
+.pc-toggle.is-on::after { transform: translateX(20px); }
+
+/* --------------------------------- Forms --------------------------------- */
+.pc-page .field { margin-bottom: 16px; }
+.pc-page .field label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--pc-muted);
+  margin-bottom: 6px;
+}
+.pc-page .field input,
+.pc-page .field select,
+.pc-page .field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 12px;
+  border-radius: var(--pc-radius-sm);
+  border: 1px solid var(--pc-border);
+  background: var(--pc-surface);
+  color: var(--pc-ink);
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+.pc-page .field input:focus,
+.pc-page .field select:focus,
+.pc-page .field textarea:focus {
+  outline: 2px solid var(--pc-green);
+  outline-offset: 1px;
+}
+
+.pc-photo-row { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+.pc-photo-actions { display: flex; flex-direction: column; gap: 8px; }
+.pc-link-btn {
+  background: none; border: none; padding: 0; cursor: pointer;
+  color: var(--pc-green); font-weight: 600; font-size: 0.85rem; text-align: left;
+}
+.pc-link-btn--danger { color: var(--pc-danger); }
+
+.pc-status {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  min-height: 1.1em;
+}
+.pc-status--ok { color: var(--pc-green); }
+.pc-status--error { color: var(--pc-danger); }
+
+/* -------------------------------- Buttons -------------------------------- */
+.pc-page .btn--primary {
+  width: 100%;
+  background: var(--pc-green);
+  color: #fff;
+  border: none;
+  padding: 13px 16px;
+  border-radius: var(--pc-radius-sm);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.pc-page .btn--ghost {
+  width: 100%;
+  background: transparent;
+  color: var(--pc-ink);
+  border: 1px solid var(--pc-border);
+  padding: 13px 16px;
+  border-radius: var(--pc-radius-sm);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  display: block;
+}
+.pc-page .btn--danger {
+  width: 100%;
+  background: var(--pc-danger);
+  color: #fff;
+  border: none;
+  padding: 13px 16px;
+  border-radius: var(--pc-radius-sm);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+/* ------------------------------ Empty states ------------------------------ */
+.pc-empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--pc-muted);
+  font-size: 0.9rem;
+}
+
+/* --------------------------------- Badges --------------------------------- */
+.pc-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+.pc-badge--processing { background: #FDF0D5; color: #8C6E12; }
+.pc-badge--shipped { background: #E4EEFB; color: #1F3E8C; }
+.pc-badge--delivered { background: #E4F3EC; color: #173F35; }
+.pc-badge--cancelled { background: var(--pc-danger-bg); color: var(--pc-danger); }
+.pc-badge--sold { background: #EFE7FB; color: #4A3496; }
+.pc-badge--available { background: #E4F3EC; color: #173F35; }
+
+/* -------------------------------- Order card ------------------------------- */
+.pc-order {
+  padding: 16px;
+  border-bottom: 1px solid var(--pc-border);
+}
+.pc-order:last-child { border-bottom: none; }
+.pc-order__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.pc-order__id { font-weight: 700; font-size: 0.9rem; }
+.pc-order__items { font-size: 0.85rem; color: var(--pc-muted); margin: 4px 0; }
+.pc-order__bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+.pc-order__total { font-weight: 700; }
+.pc-order__date { font-size: 0.78rem; color: var(--pc-muted); }
+
+/* --------------------------------- Cart line -------------------------------- */
+.pc-cart-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--pc-border);
+}
+.pc-cart-line:last-child { border-bottom: none; }
+.pc-cart-line__cover {
+  width: 40px; height: 54px; border-radius: 6px; flex-shrink: 0;
+  position: relative; overflow: hidden;
+}
+.pc-cart-line__info { flex: 1; min-width: 0; }
+.pc-cart-line__title { font-weight: 600; font-size: 0.9rem; }
+.pc-cart-line__price { font-size: 0.82rem; color: var(--pc-muted); }
+.pc-qty {
+  display: flex; align-items: center; gap: 8px;
+}
+.pc-qty button {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 1px solid var(--pc-border); background: var(--pc-surface);
+  color: var(--pc-ink); cursor: pointer; font-size: 1rem; line-height: 1;
+}
+.pc-cart-line__remove {
+  background: none; border: none; color: var(--pc-danger); cursor: pointer; font-size: 0.78rem; font-weight: 600;
+}
+.pc-cart-summary {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pc-cart-summary__row { display: flex; justify-content: space-between; font-size: 0.95rem; }
+.pc-cart-summary__row--total { font-weight: 700; font-size: 1.05rem; padding-top: 8px; border-top: 1px dashed var(--pc-border); }
+
+/* ------------------------------ Add-to-cart picker -------------------------- */
+.pc-add-picker { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+
+/* --------------------------------- Sales ------------------------------------ */
+.pc-sales-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 16px;
+}
+.pc-sales-stat {
+  background: var(--pc-bg);
+  border-radius: var(--pc-radius-sm);
+  padding: 14px;
+  text-align: center;
+}
+.pc-sales-stat__value {
+  font-family: 'Fraunces', serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--pc-green);
+}
+.pc-sales-stat__label { font-size: 0.78rem; color: var(--pc-muted); margin-top: 2px; }
+
+/* --------------------------------- Uploaded book row ------------------------- */
+.pc-upload-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--pc-border);
+}
+.pc-upload-row:last-child { border-bottom: none; }
+.pc-upload-row__cover { width: 40px; height: 54px; border-radius: 6px; flex-shrink: 0; position: relative; overflow: hidden; }
+.pc-upload-row__info { flex: 1; min-width: 0; }
+.pc-upload-row__title { font-weight: 600; font-size: 0.9rem; }
+.pc-upload-row__meta { font-size: 0.78rem; color: var(--pc-muted); }
+.pc-upload-row__actions { display: flex; gap: 8px; flex-shrink: 0; }
+.pc-upload-row__actions button {
+  border: 1px solid var(--pc-border);
+  background: var(--pc-surface);
+  color: var(--pc-ink);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.pc-upload-row__actions button.pc-danger-text { color: var(--pc-danger); }
+
+/* --------------------------------- Stars (rate app) --------------------------- */
+.pc-stars { display: flex; gap: 6px; padding: 18px 16px 4px; justify-content: center; }
+.pc-star {
+  background: none; border: none; cursor: pointer; padding: 0;
+  color: var(--pc-border);
+  font-size: 2rem;
+  line-height: 1;
+}
+.pc-star.is-active { color: var(--pc-gilt); }
+
+/* ---------------------------------- Radios ------------------------------------ */
+.pc-choice-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--pc-border);
+  cursor: pointer;
+}
+.pc-choice-row:last-child { border-bottom: none; }
+.pc-choice-row__check {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 2px solid var(--pc-border);
+  position: relative;
+  flex-shrink: 0;
+}
+.pc-choice-row.is-selected .pc-choice-row__check { border-color: var(--pc-green); }
+.pc-choice-row.is-selected .pc-choice-row__check::after {
+  content: '';
+  position: absolute; inset: 3px;
+  background: var(--pc-green);
+  border-radius: 50%;
+}
+
+/* ------------------------------- Simple content page --------------------------- */
+.pc-prose { padding: 4px 2px; line-height: 1.6; color: var(--pc-ink); font-size: 0.94rem; }
+.pc-prose h3 { font-family: 'Fraunces', serif; font-size: 1.02rem; margin: 18px 0 6px; }
+.pc-prose p { margin: 0 0 10px; }
+.pc-prose ul { margin: 0 0 10px; padding-left: 20px; }
+
+.pc-app-version { text-align: center; color: var(--pc-muted); font-size: 0.8rem; margin-top: 6px; }
+
+/* --------------------------------- Modal / overlay ------------------------------ */
+.pc-overlay {
+  position: fixed; inset: 0;
+  background: rgba(20, 18, 14, 0.45);
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 60;
+}
+.pc-overlay.is-open { display: flex; }
+.pc-overlay__sheet {
+  background: var(--pc-surface);
+  color: var(--pc-ink);
+  width: 100%;
+  max-width: 480px;
+  border-radius: 18px 18px 0 0;
+  padding: 22px 20px 26px;
+  box-sizing: border-box;
+}
+@media (min-width: 640px) {
+  .pc-overlay { align-items: center; }
+  .pc-overlay__sheet { border-radius: 18px; }
+}
+.pc-overlay__title { font-family: 'Fraunces', serif; font-size: 1.05rem; margin: 0 0 6px; }
+.pc-overlay__sub { font-size: 0.85rem; color: var(--pc-muted); margin: 0 0 16px; }
+.pc-overlay__actions { display: flex; gap: 10px; margin-top: 14px; }
+.pc-overlay__actions .btn--ghost, .pc-overlay__actions .btn--danger, .pc-overlay__actions .btn--primary { flex: 1; }

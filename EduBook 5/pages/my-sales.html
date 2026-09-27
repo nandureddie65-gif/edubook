@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduBook &mdash; My Sales</title>
+<script src="../assets/js/theme.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/home.css">
+<link rel="stylesheet" href="../assets/css/books.css">
+<link rel="stylesheet" href="../assets/css/profile.css">
+<link rel="stylesheet" href="../assets/css/ai.css">
+<link rel="stylesheet" href="../assets/css/nav-drawer.css">
+</head>
+<body class="home-body">
+
+<div class="page pc-page">
+  <header class="page-header">
+    <a class="page-header__back" href="profile.html" aria-label="Back to Profile">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </a>
+    <h1 class="page-header__title">My Sales</h1>
+  </header>
+
+  <main class="page-content">
+    <div class="pc-card pc-sales-stats" id="sales-stats"></div>
+    <div class="pc-section">
+      <p class="pc-section__title">Sold books</p>
+      <div class="pc-card" id="sales-list"></div>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/js/books-data.js"></script>
+<script src="../assets/js/store.js"></script>
+<script src="../assets/js/profile-store.js"></script>
+<script>
+  (function () {
+    function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+    function coverStyle(book) {
+      var c = book.cover || book.coverColors || ['#2A2E35', '#101215'];
+      return 'background:linear-gradient(160deg,' + c[0] + ',' + c[1] + ')';
+    }
+    function coverImgHtml(book) {
+      return (typeof coverImgTag === 'function') ? coverImgTag(book.isbn, 'S', book.title) : '';
+    }
+
+    var sales = ProfileStore.getSales();
+    document.getElementById('sales-stats').innerHTML =
+      '<div class="pc-sales-stat"><div class="pc-sales-stat__value">' + sales.sold.length + '</div><div class="pc-sales-stat__label">Books sold</div></div>' +
+      '<div class="pc-sales-stat"><div class="pc-sales-stat__value">\u20b9' + sales.earnings + '</div><div class="pc-sales-stat__label">Total earnings</div></div>';
+
+    var list = document.getElementById('sales-list');
+    if (!sales.sold.length) {
+      list.innerHTML = '<div class="pc-empty">No sales yet. Mark a book as sold from My Uploaded Books to see it here.</div>';
+      return;
+    }
+    list.innerHTML = sales.sold.map(function (b) {
+      var price = b.soldPrice != null ? b.soldPrice : b.price;
+      var when = b.soldAt ? new Date(b.soldAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+      return '' +
+        '<div class="pc-upload-row">' +
+          '<div class="pc-upload-row__cover" style="' + coverStyle(b) + '">' + coverImgHtml(b) + '</div>' +
+          '<div class="pc-upload-row__info">' +
+            '<div class="pc-upload-row__title">' + esc(b.title) + '</div>' +
+            '<div class="pc-upload-row__meta">Sold ' + when + '</div>' +
+          '</div>' +
+          '<div class="pc-order__total">\u20b9' + price + '</div>' +
+        '</div>';
+    }).join('');
+  })();
+</script>
+<script src="../assets/js/ai-engine.js"></script>
+<script src="../assets/js/ai-chat-widget.js"></script>
+<script src="../assets/js/nav-drawer.js"></script>
+</body>
+</html>

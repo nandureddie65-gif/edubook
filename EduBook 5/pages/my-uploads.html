@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduBook &mdash; My Uploaded Books</title>
+<script src="../assets/js/theme.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/home.css">
+<link rel="stylesheet" href="../assets/css/books.css">
+<link rel="stylesheet" href="../assets/css/profile.css">
+<link rel="stylesheet" href="../assets/css/ai.css">
+<link rel="stylesheet" href="../assets/css/nav-drawer.css">
+</head>
+<body class="home-body">
+
+<div class="page pc-page">
+  <header class="page-header">
+    <a class="page-header__back" href="profile.html" aria-label="Back to Profile">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </a>
+    <div>
+      <h1 class="page-header__title">My Uploaded Books</h1>
+      <p class="page-header__sub">Books you've listed via Upload Book</p>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <div class="pc-card" id="uploads-card"></div>
+    <a class="btn--ghost" href="upload.html">Upload another book</a>
+  </main>
+</div>
+
+<!-- Edit sheet -->
+<div class="pc-overlay" id="edit-overlay">
+  <div class="pc-overlay__sheet">
+    <h2 class="pc-overlay__title">Edit book</h2>
+    <div class="field"><label for="ed-title">Title</label><input type="text" id="ed-title"></div>
+    <div class="field"><label for="ed-author">Author</label><input type="text" id="ed-author"></div>
+    <div class="field"><label for="ed-price">Price (&#8377;)</label><input type="number" id="ed-price" min="1"></div>
+    <div class="pc-overlay__actions">
+      <button class="btn--ghost" type="button" id="edit-cancel-btn">Cancel</button>
+      <button class="btn--primary" type="button" id="edit-save-btn">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mark-as-sold sheet -->
+<div class="pc-overlay" id="sold-overlay">
+  <div class="pc-overlay__sheet">
+    <h2 class="pc-overlay__title">Mark as sold</h2>
+    <p class="pc-overlay__sub">Enter the final sale price to record it in My Sales.</p>
+    <div class="field"><label for="sold-price">Sold for (&#8377;)</label><input type="number" id="sold-price" min="1"></div>
+    <div class="pc-overlay__actions">
+      <button class="btn--ghost" type="button" id="sold-cancel-btn">Cancel</button>
+      <button class="btn--primary" type="button" id="sold-confirm-btn">Confirm Sale</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/js/books-data.js"></script>
+<script src="../assets/js/store.js"></script>
+<script src="../assets/js/profile-store.js"></script>
+<script>
+  (function () {
+    function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+    function coverStyle(book) {
+      var c = book.cover || book.coverColors || ['#2A2E35', '#101215'];
+      return 'background:linear-gradient(160deg,' + c[0] + ',' + c[1] + ')';
+    }
+    function coverImgHtml(book) {
+      return (typeof coverImgTag === 'function') ? coverImgTag(book.isbn, 'S', book.title) : '';
+    }
+    var card = document.getElementById('uploads-card');
+    var activeId = null;
+
+    function render() {
+      var uploads = ProfileStore.getMyUploads();
+      if (!uploads.length) {
+        card.innerHTML = '<div class="pc-empty">You haven\u2019t uploaded any books yet.</div>';
+        return;
+      }
+      card.innerHTML = uploads.map(function (b) {
+        var soldBadge = b.status === 'Sold' ? '<span class="pc-badge pc-badge--sold">Sold</span>' : '<span class="pc-badge pc-badge--available">Available</span>';
+        return '' +
+          '<div class="pc-upload-row" data-id="' + esc(b.id) + '">' +
+            '<div class="pc-upload-row__cover" style="' + coverStyle(b) + '">' + coverImgHtml(b) + '</div>' +
+            '<div class="pc-upload-row__info">' +
+              '<div class="pc-upload-row__title">' + esc(b.title) + '</div>' +
+              '<div class="pc-upload-row__meta">' + esc(b.author || '') + ' \u00b7 \u20b9' + b.price + ' ' + soldBadge + '</div>' +
+            '</div>' +
+            '<div class="pc-upload-row__actions">' +
+              (b.status !== 'Sold' ? '<button type="button" data-sold="' + esc(b.id) + '">Mark Sold</button>' : '') +
+              '<button type="button" data-edit="' + esc(b.id) + '">Edit</button>' +
+              '<button type="button" class="pc-danger-text" data-delete="' + esc(b.id) + '">Delete</button>' +
+            '</div>' +
+          '</div>';
+      }).join('');
+
+      card.querySelectorAll('[data-edit]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          activeId = btn.getAttribute('data-edit');
+          var book = uploads.filter(function (b) { return b.id === activeId; })[0];
+          document.getElementById('ed-title').value = book.title;
+          document.getElementById('ed-author').value = book.author || '';
+          document.getElementById('ed-price').value = book.price;
+          document.getElementById('edit-overlay').classList.add('is-open');
+        });
+      });
+      card.querySelectorAll('[data-delete]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          if (confirm('Delete this listing? It will be removed from Sell Books and Recent Uploads.')) {
+            ProfileStore.deleteUpload(btn.getAttribute('data-delete'));
+            render();
+          }
+        });
+      });
+      card.querySelectorAll('[data-sold]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          activeId = btn.getAttribute('data-sold');
+          var book = uploads.filter(function (b) { return b.id === activeId; })[0];
+          document.getElementById('sold-price').value = book.price;
+          document.getElementById('sold-overlay').classList.add('is-open');
+        });
+      });
+    }
+    render();
+
+    document.getElementById('edit-cancel-btn').addEventListener('click', function () {
+      document.getElementById('edit-overlay').classList.remove('is-open');
+    });
+    document.getElementById('edit-save-btn').addEventListener('click', function () {
+      var title = document.getElementById('ed-title').value.trim();
+      var author = document.getElementById('ed-author').value.trim();
+      var price = Number(document.getElementById('ed-price').value);
+      if (!title || !price) return;
+      ProfileStore.updateUpload(activeId, { title: title, author: author, price: price });
+      document.getElementById('edit-overlay').classList.remove('is-open');
+      render();
+    });
+
+    document.getElementById('sold-cancel-btn').addEventListener('click', function () {
+      document.getElementById('sold-overlay').classList.remove('is-open');
+    });
+    document.getElementById('sold-confirm-btn').addEventListener('click', function () {
+      var price = Number(document.getElementById('sold-price').value);
+      if (!price) return;
+      ProfileStore.markSold(activeId, price);
+      document.getElementById('sold-overlay').classList.remove('is-open');
+      render();
+    });
+  })();
+</script>
+<script src="../assets/js/ai-engine.js"></script>
+<script src="../assets/js/ai-chat-widget.js"></script>
+<script src="../assets/js/nav-drawer.js"></script>
+</body>
+</html>

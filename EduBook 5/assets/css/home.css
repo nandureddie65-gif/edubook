@@ -1,0 +1,216 @@
+/* =========================================================================
+   EduBook — home.css
+   Home feed layout + the shared header/footer chrome (topbar, bottom-nav,
+   page-header) that every interior page also uses.
+   ========================================================================= */
+
+.home-body { background: var(--parchment); padding-bottom: 76px; transition: background-color 0.2s ease; }
+
+/* ------------------------------- Top bar (Home) ------------------------------- */
+.app { max-width: 640px; margin: 0 auto; }
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 18px;
+}
+.icon-btn {
+  background: none; border: none; color: var(--ink);
+  width: 38px; height: 38px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+.icon-btn:hover { background: var(--parchment-deep); }
+.icon-btn:active { transform: scale(0.94); }
+.icon-btn--cart { position: relative; }
+.badge {
+  position: absolute; top: 2px; right: 2px;
+  min-width: 16px; height: 16px; padding: 0 3px;
+  background: var(--danger); color: #fff;
+  border-radius: 999px;
+  font-size: 0.62rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.brand { text-align: center; }
+.brand__name { display: block; font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.1rem; color: var(--green-deep); }
+.brand__tag { display: block; font-size: 0.68rem; color: var(--ink-soft); letter-spacing: 0.02em; }
+
+.content { padding: 0 16px 16px; }
+
+/* ---------------------------------- Hero ---------------------------------- */
+.hero {
+  position: relative;
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgba(255,255,255,0.12), transparent 55%),
+    linear-gradient(160deg, var(--green), var(--green-deep));
+  border-radius: var(--radius);
+  padding: 26px 20px;
+  color: #fff;
+  margin-bottom: 18px;
+  overflow: hidden;
+}
+.hero__text h1 { font-size: 1.4rem; font-weight: 600; line-height: 1.3; margin-bottom: 16px; }
+.btn-explore {
+  display: inline-block;
+  background: var(--gilt); color: #2b2100;
+  padding: 10px 18px; border-radius: 999px;
+  font-weight: 700; font-size: 0.85rem; text-decoration: none;
+}
+.hero__art { position: absolute; right: -10px; bottom: -10px; width: 120px; height: 90px; opacity: 0.35; }
+.hero__book { position: absolute; width: 44px; height: 60px; border-radius: 4px; background: rgba(255,255,255,0.5); }
+.hero__book--1 { right: 40px; bottom: 0; transform: rotate(-8deg); }
+.hero__book--2 { right: 10px; bottom: 4px; transform: rotate(6deg); }
+.hero__book--3 { right: 0; bottom: -6px; transform: rotate(-2deg); }
+
+/* --------------------------------- Search bar --------------------------------- */
+.search {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 10px 14px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.search:focus-within { border-color: var(--green); box-shadow: 0 0 0 3px rgba(47, 111, 94, 0.15); }
+.search__icon { background: none; border: none; color: var(--green); cursor: pointer; display: flex; }
+.search input {
+  flex: 1; border: none; background: none; outline: none;
+  font-size: 0.92rem; color: var(--ink);
+}
+
+/* ------------------------------- Quick actions ------------------------------- */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.quick-action {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 4px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  cursor: pointer;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-align: center;
+  transition: border-color 0.15s ease, color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+.quick-action:hover { border-color: var(--green); color: var(--green); transform: translateY(-2px); box-shadow: var(--shadow); }
+.quick-action:active { transform: translateY(0); }
+.quick-action__icon {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+}
+.quick-action__icon--buy { background: var(--green); }
+.quick-action__icon--sell { background: var(--gilt); color: #2b2100; }
+.quick-action__icon--upload { background: #3E6FD6; }
+.quick-action__icon--wishlist { background: #C4433A; }
+.quick-action__icon--offers { background: #7C5CD6; }
+
+/* ---------------------------------- Sections ---------------------------------- */
+.section { margin-bottom: 26px; }
+.section__head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.section__head h2 { font-size: 1.05rem; font-weight: 600; }
+.see-all { font-size: 0.8rem; font-weight: 600; color: var(--green); text-decoration: none; }
+
+.trending-row {
+  display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px;
+}
+
+.upload-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+
+/* Recent Uploads on Home: same .upload-row markup/data as the full uploads
+   list, just laid out as a horizontal scroller of compact cards instead of
+   a vertical list — scoped to this modifier so uploads.html's "See All"
+   page (which reuses .upload-list) keeps its normal vertical list. */
+.upload-list--horizontal {
+  flex-direction: row;
+  overflow-x: auto;
+  gap: 12px;
+  padding-bottom: 6px;
+  scroll-snap-type: x proximity;
+}
+.upload-list--horizontal .upload-row {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  width: 148px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+.upload-list--horizontal .upload-row__cover {
+  width: 100%;
+  height: 150px;
+  margin-bottom: 8px;
+}
+.upload-list--horizontal .upload-info { min-width: 0; }
+.upload-list--horizontal .upload-time { margin-top: 4px; }
+
+/* ----------------------------------- Why ----------------------------------- */
+.why { margin-bottom: 10px; }
+.why__title { font-size: 1.05rem; font-weight: 600; margin-bottom: 12px; }
+.why__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.why__item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.82rem; font-weight: 600; color: var(--ink-soft);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.why__item:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+.why__icon { color: var(--green); position: relative; flex-shrink: 0; }
+.why__dot { position: absolute; top: -2px; right: -2px; width: 7px; height: 7px; border-radius: 50%; background: var(--gilt); }
+
+/* -------------------------------- Bottom nav -------------------------------- */
+.bottom-nav {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  max-width: 640px; margin: 0 auto;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  padding: 8px 6px calc(8px + env(safe-area-inset-bottom, 0px));
+  z-index: 30;
+}
+.nav-item {
+  flex: 1;
+  background: none; border: none;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 6px 2px;
+  font-size: 0.66rem; font-weight: 600;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: color 0.15s ease, transform 0.1s ease;
+}
+.nav-item.is-active { color: var(--green); }
+.nav-item:active { transform: scale(0.94); }
+
+/* -------------------------------- Page header (shared) -------------------------------- */
+.page { max-width: 640px; margin: 0 auto; padding-bottom: 24px; }
+.page-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 18px 16px 14px;
+}
+.page-header__back {
+  width: 34px; height: 34px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--ink); text-decoration: none; flex-shrink: 0;
+  transition: border-color 0.15s ease, transform 0.1s ease;
+}
+.page-header__back:hover { border-color: var(--green); }
+.page-header__back:active { transform: scale(0.94); }
+.page-header__title { font-size: 1.15rem; font-weight: 600; }
+.page-header__sub { font-size: 0.8rem; color: var(--ink-soft); margin-top: 2px; }
+.page-content { padding: 0 16px 16px; }

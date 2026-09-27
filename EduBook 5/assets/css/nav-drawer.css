@@ -1,0 +1,102 @@
+/* =========================================================================
+   EduBook — Navigation Drawer (hamburger menu) stylesheet
+   Additive; reuses the --pc-* tokens from css/profile.css so it matches
+   whichever theme / dark-mode state is active.
+   ========================================================================= */
+
+#nd-drawer-root { position: fixed; inset: 0; z-index: 90; pointer-events: none; }
+
+.nd-scrim {
+  position: absolute; inset: 0;
+  background: rgba(20, 18, 14, 0.45);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.nd-panel {
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: min(84vw, 300px);
+  background: var(--pc-surface, #fff);
+  color: var(--pc-ink, #23201B);
+  box-shadow: 6px 0 24px rgba(0,0,0,0.18);
+  transform: translateX(-100%);
+  transition: transform 0.22s ease;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+#nd-drawer-root.is-open { pointer-events: auto; }
+#nd-drawer-root.is-open .nd-scrim { opacity: 1; pointer-events: auto; }
+#nd-drawer-root.is-open .nd-panel { transform: translateX(0); pointer-events: auto; }
+
+.nd-panel__head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--pc-border, #E6DFCF);
+}
+.nd-panel__brand {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 1.15rem;
+  color: var(--pc-green, #2F6F5E);
+}
+.nd-close {
+  background: none; border: none; font-size: 1.5rem; line-height: 1;
+  color: var(--pc-muted, #7A7362); cursor: pointer; padding: 4px;
+}
+
+.nd-panel__items {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0 20px;
+}
+
+.nd-item {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%;
+  padding: 11px 18px;
+  background: none; border: none;
+  text-align: left;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--pc-ink, #23201B);
+  cursor: pointer;
+}
+.nd-item:hover { background: var(--pc-bg, #F5EFE2); }
+.nd-item.is-active { color: var(--pc-green, #2F6F5E); background: var(--pc-bg, #F5EFE2); }
+.nd-item.is-active .nd-item__icon { color: var(--pc-green, #2F6F5E); }
+.nd-item--danger { color: var(--pc-danger, #B3392C); }
+.nd-item--danger .nd-item__icon { color: var(--pc-danger, #B3392C); }
+
+.nd-item__icon { flex-shrink: 0; color: var(--pc-muted, #7A7362); display: flex; }
+.nd-item__label { flex: 1; }
+
+.nd-toggle-mini {
+  width: 38px; height: 22px; border-radius: 999px;
+  background: var(--pc-border, #E6DFCF);
+  position: relative;
+  flex-shrink: 0;
+}
+.nd-toggle-mini::after {
+  content: '';
+  position: absolute; top: 2px; left: 2px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s ease;
+}
+.nd-toggle-mini.is-on { background: var(--pc-green, #2F6F5E); }
+.nd-toggle-mini.is-on::after { transform: translateX(16px); }
+
+/* ---- Hamburger button auto-injected into interior .page-header bars ---- */
+.nd-header-menu-btn {
+  background: none; border: none;
+  color: var(--pc-ink, #23201B);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px;
+  flex-shrink: 0;
+  margin-right: 4px;
+}

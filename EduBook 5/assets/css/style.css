@@ -1,0 +1,249 @@
+/* =========================================================================
+   EduBook — style.css
+   Shared design tokens + the Sign In / Create Account / Forgot Password page.
+   ========================================================================= */
+
+:root {
+  --ink: #23201B;
+  --ink-soft: #55503F;
+  --parchment: #F5EFE2;
+  --parchment-deep: #ECE3CE;
+  --surface: #FFFFFF;
+  --green: #2F6F5E;
+  --green-deep: #173F35;
+  --gilt: #C9A227;
+  --border: #E6DFCF;
+  --danger: #B3392C;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 1px 2px rgba(35,32,27,0.06), 0 12px 32px rgba(35,32,27,0.08);
+  font-size: 16px;
+}
+
+/* Dark Mode — flipping this one attribute (via js/theme.js / js/nav-drawer.js /
+   js/profile-store.js settings) re-themes every page in the app, not just the
+   newer Profile-family screens, since every page's CSS reads these same tokens. */
+html[data-theme="dark"] {
+  --ink: #EDEFEC;
+  --ink-soft: #9AA19C;
+  --parchment: #14171A;
+  --parchment-deep: #1B2024;
+  --surface: #1D2226;
+  --green: #4FAE95;
+  --green-deep: #173F35;
+  --gilt: #E0BB4B;
+  --border: #2B3136;
+  --danger: #E2685A;
+  --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 12px 32px rgba(0,0,0,0.4);
+}
+
+* { box-sizing: border-box; }
+*:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+html { scroll-behavior: smooth; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--ink);
+  background: var(--parchment);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+h1, h2, h3 { font-family: 'Fraunces', serif; margin: 0; letter-spacing: -0.01em; }
+p { margin: 0; }
+a { color: inherit; }
+button { font-family: inherit; }
+
+/* ------------------------------- Layout stage ------------------------------- */
+.stage {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 960px) {
+  .stage { grid-template-columns: 1.1fr 1fr; }
+}
+
+/* --------------------------------- Left cover -------------------------------- */
+.cover {
+  display: none;
+  background: linear-gradient(160deg, var(--green-deep), var(--green));
+  color: #fff;
+  padding: 48px;
+  position: relative;
+  overflow: hidden;
+}
+@media (min-width: 960px) { .cover { display: flex; align-items: center; justify-content: center; } }
+
+.cover__inner { max-width: 420px; }
+.wordmark { font-family: 'Fraunces', serif; font-size: 2.2rem; font-weight: 600; margin-bottom: 14px; }
+.wordmark__mark--accent { color: var(--gilt); }
+.tagline { font-size: 1.05rem; line-height: 1.5; opacity: 0.92; margin-bottom: 36px; }
+
+.shelf { margin-bottom: 28px; }
+.shelf__row { display: flex; gap: 6px; align-items: flex-end; height: 130px; }
+.spine {
+  flex: 1;
+  border-radius: 4px 4px 2px 2px;
+  display: flex; align-items: flex-end; justify-content: center;
+  padding-bottom: 10px;
+  color: rgba(255,255,255,0.85);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  box-shadow: inset 0 -4px 10px rgba(0,0,0,0.15);
+}
+.spine--1 { height: 100%; background: #C4433A; }
+.spine--2 { height: 88%; background: var(--gilt); color: #2b2100; }
+.spine--3 { height: 96%; background: #3E6FD6; }
+.spine--4 { height: 80%; background: #7C5CD6; }
+.spine--5 { height: 92%; background: #E07A3F; }
+.spine--6 { height: 84%; background: #4FAE95; }
+.shelf__ledge { height: 10px; background: rgba(0,0,0,0.25); border-radius: 2px; margin-top: 4px; }
+
+.cover__foot { font-size: 0.85rem; opacity: 0.8; }
+
+/* --------------------------------- Right panel -------------------------------- */
+.panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+}
+.card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 28px 26px 32px;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ribbon-toggle {
+  position: relative;
+  display: flex;
+  background: var(--parchment-deep);
+  border-radius: 999px;
+  padding: 4px;
+  margin-bottom: 26px;
+}
+.ribbon-toggle__btn {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+  border: none;
+  background: transparent;
+  padding: 10px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  color: var(--ink-soft);
+  transition: color 0.2s ease;
+}
+.ribbon-toggle__btn.is-active { color: #fff; }
+.ribbon-toggle__slider {
+  position: absolute;
+  top: 4px; bottom: 4px; left: 4px;
+  width: calc(50% - 4px);
+  background: var(--green);
+  border-radius: 999px;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ribbon-toggle[data-active="signup"] .ribbon-toggle__slider { transform: translateX(100%); }
+
+.view { display: none; }
+.view.is-visible { display: block; }
+
+.card__title { font-size: 1.4rem; font-weight: 600; margin-bottom: 6px; }
+.card__subtitle { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 22px; line-height: 1.4; }
+
+.field { margin-bottom: 16px; }
+.field label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--ink-soft); margin-bottom: 6px; }
+.field input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 13px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--parchment);
+  color: var(--ink);
+  font-size: 0.95rem;
+  transition: border-color 0.15s ease, background-color 0.2s ease, box-shadow 0.15s ease;
+}
+.field input:focus { outline: 2px solid var(--green); outline-offset: 1px; }
+.field input.has-error { border-color: var(--danger); }
+.field__with-action { position: relative; display: flex; align-items: center; }
+.field__with-action input { padding-right: 60px; }
+.field__toggle {
+  position: absolute; right: 10px;
+  background: none; border: none; color: var(--green);
+  font-size: 0.78rem; font-weight: 700; cursor: pointer;
+}
+.field__hint { display: block; font-size: 0.75rem; color: var(--ink-soft); margin-top: 5px; }
+.field__error { display: block; font-size: 0.78rem; color: var(--danger); margin-top: 5px; min-height: 1em; }
+
+.link-btn { background: none; border: none; color: var(--green); font-weight: 600; font-size: 0.85rem; cursor: pointer; padding: 0; }
+.forgot-link { display: block; margin: -6px 0 16px; text-align: right; margin-left: auto; }
+
+.form__status { font-size: 0.85rem; min-height: 1.2em; margin-bottom: 10px; }
+.form__status.is-error { color: var(--danger); }
+.form__status.is-success { color: var(--green); }
+
+.btn { cursor: pointer; border: none; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.95rem; transition: background-color 0.18s ease, transform 0.1s ease, opacity 0.18s ease; }
+.btn--primary { width: 100%; background: var(--green); color: #fff; padding: 13px 16px; }
+.btn--primary:hover { background: var(--green-deep); }
+.btn--primary:active { transform: scale(0.98); }
+.btn--primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+/* --------------------------------- Overlay --------------------------------- */
+.overlay {
+  position: fixed; inset: 0;
+  display: none;
+  align-items: center; justify-content: center;
+  z-index: 100;
+  padding: 20px;
+}
+.overlay[aria-hidden="false"] { display: flex; }
+.overlay__scrim { position: absolute; inset: 0; background: rgba(20,18,14,0.5); }
+.overlay__card {
+  position: relative;
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 30px 26px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: var(--shadow);
+}
+.overlay__close { position: absolute; top: 14px; right: 16px; background: none; border: none; font-size: 1.4rem; color: var(--ink-soft); cursor: pointer; }
+
+.steps { display: flex; gap: 8px; justify-content: center; margin-bottom: 18px; }
+.steps__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
+.steps__dot.is-active { background: var(--green); }
+
+.step { display: none; }
+.step.is-visible { display: block; }
+
+.otp-input { letter-spacing: 0.4em; text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 1.1rem; }
+
+/* Real book cover photos. Sits on top of the existing gradient-placeholder
+   background, filling whichever container it's placed in (book-card,
+   upload-row, cart line, book-details hero, etc). If the image 404s/fails,
+   the onerror handler on the <img> removes it, revealing the gradient
+   underneath — so covers degrade to the original look automatically. */
+.cover-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+.success-mark {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--green); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem; margin: 0 auto 16px;
+}

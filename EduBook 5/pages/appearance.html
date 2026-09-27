@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduBook &mdash; Dark Mode</title>
+<script src="../assets/js/theme.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/home.css">
+<link rel="stylesheet" href="../assets/css/books.css">
+<link rel="stylesheet" href="../assets/css/profile.css">
+<link rel="stylesheet" href="../assets/css/ai.css">
+<link rel="stylesheet" href="../assets/css/nav-drawer.css">
+</head>
+<body class="home-body">
+
+<div class="page pc-page">
+  <header class="page-header">
+    <a class="page-header__back" href="profile.html" aria-label="Back to Profile">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </a>
+    <h1 class="page-header__title">Dark Mode</h1>
+  </header>
+
+  <main class="page-content">
+    <div class="pc-card">
+      <ul class="pc-list">
+        <li class="pc-row">
+          <span class="pc-row__body">
+            <span class="pc-row__label">Dark Mode</span>
+            <span class="pc-row__sub">Applies across the whole app</span>
+          </span>
+          <button type="button" class="pc-toggle" id="dark-toggle"></button>
+        </li>
+      </ul>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/js/profile-store.js"></script>
+<script>
+  (function () {
+    var toggle = document.getElementById('dark-toggle');
+    function render() {
+      var on = !!ProfileStore.getSettings().darkMode;
+      toggle.classList.toggle('is-on', on);
+      document.documentElement.setAttribute('data-theme', on ? 'dark' : 'light');
+    }
+    render();
+    toggle.addEventListener('click', function () {
+      var on = !ProfileStore.getSettings().darkMode;
+      ProfileStore.saveSettings({ darkMode: on });
+      render();
+    });
+  })();
+</script>
+<script src="../assets/js/ai-engine.js"></script>
+<script src="../assets/js/ai-chat-widget.js"></script>
+<script src="../assets/js/nav-drawer.js"></script>
+</body>
+</html>

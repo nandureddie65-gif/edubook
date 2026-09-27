@@ -1,0 +1,156 @@
+/* =========================================================================
+   EduBook — books.css
+   Book card grid/list rendering (produced by js/render.js), plus the
+   filter chips, sell CTA, page search bar, upload form, and empty states
+   used across the browsing pages.
+   ========================================================================= */
+
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+@media (min-width: 520px) { .books-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.book-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+}
+.book-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); border-color: var(--green); }
+
+.book-card__cover {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.heart-btn {
+  position: absolute; top: 6px; right: 6px;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(255,255,255,0.9);
+  border: none;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: color 0.15s ease, transform 0.12s ease;
+}
+.heart-btn:hover { transform: scale(1.08); }
+.heart-btn.is-active { color: #C4433A; }
+.heart-btn.is-active svg { fill: currentColor; }
+
+.book-card__title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0 0 2px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.book-card__author { font-size: 0.72rem; color: var(--ink-soft); margin: 0 0 6px; }
+.book-card__price-row { display: flex; align-items: baseline; gap: 6px; margin-top: auto; }
+.book-card__price { font-weight: 700; font-size: 0.88rem; color: var(--green); }
+.book-card__price--original { font-size: 0.72rem; color: var(--ink-soft); text-decoration: line-through; }
+.book-card__badge {
+  position: absolute; top: 6px; left: 6px;
+  background: var(--danger); color: #fff;
+  font-size: 0.6rem; font-weight: 700;
+  padding: 2px 6px; border-radius: 999px;
+  text-transform: uppercase;
+}
+
+/* ---- List row (used by Recent Uploads / uploads.html) ---- */
+.upload-row {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+}
+.upload-row__cover { width: 44px; height: 58px; border-radius: 6px; flex-shrink: 0; position: relative; overflow: hidden; }
+.upload-info { flex: 1; min-width: 0; }
+.upload-info .book-card__title { -webkit-line-clamp: 1; }
+.upload-time { font-size: 0.68rem; color: var(--ink-soft); margin-top: 2px; }
+
+/* ---- Trending row card (horizontal scroll) ---- */
+.trending-row .book-card { width: 130px; flex-shrink: 0; }
+
+/* ---- Sell CTA ---- */
+.sell-cta {
+  display: flex; align-items: center; justify-content: space-between;
+  background: linear-gradient(160deg, var(--green), var(--green-deep));
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 18px;
+}
+.sell-cta__text h2 { font-size: 1.05rem; margin-bottom: 4px; }
+.sell-cta__text p { font-size: 0.8rem; opacity: 0.85; }
+.sell-cta__btn {
+  background: var(--gilt); color: #2b2100;
+  padding: 10px 16px; border-radius: 999px;
+  font-weight: 700; font-size: 0.82rem; text-decoration: none; white-space: nowrap;
+}
+
+/* ---- Category filter chips ---- */
+.chip-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 14px; }
+.chip {
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 0.78rem; font-weight: 600;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.chip.is-active { background: var(--green); border-color: var(--green); color: #fff; }
+
+/* ---- Page search (used on search.html) ---- */
+.page-search {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+}
+.page-search__icon { color: var(--green); flex-shrink: 0; }
+.page-search input { flex: 1; border: none; background: none; outline: none; font-size: 0.9rem; }
+
+/* ---- Empty state ---- */
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px 16px;
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+/* ---- Upload form ---- */
+.upload-form .field input { background: var(--surface); }
+.cover-picker { display: flex; gap: 8px; flex-wrap: wrap; }
+.cover-swatch {
+  width: 36px; height: 36px; border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.1s ease;
+}
+.cover-swatch:hover { transform: scale(1.06); }
+.cover-swatch.is-selected { border-color: var(--ink); }
+
+.upload-success { text-align: center; padding: 30px 10px; }
+.upload-success .card__title { margin-bottom: 8px; }
+.upload-success .card__subtitle { margin-bottom: 22px; }

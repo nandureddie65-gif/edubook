@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduBook &mdash; Rate the App</title>
+<script src="../assets/js/theme.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/home.css">
+<link rel="stylesheet" href="../assets/css/books.css">
+<link rel="stylesheet" href="../assets/css/profile.css">
+<link rel="stylesheet" href="../assets/css/ai.css">
+<link rel="stylesheet" href="../assets/css/nav-drawer.css">
+</head>
+<body class="home-body">
+
+<div class="page pc-page">
+  <header class="page-header">
+    <a class="page-header__back" href="profile.html" aria-label="Back to Profile">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </a>
+    <h1 class="page-header__title">Rate the App</h1>
+  </header>
+
+  <main class="page-content">
+    <div class="pc-card">
+      <p style="text-align:center; padding:14px 16px 0; color:var(--pc-muted); font-size:0.9rem;">How's your experience with EduBook?</p>
+      <div class="pc-stars" id="stars">
+        <button class="pc-star" data-star="1" type="button"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.4 1 6.1L12 17l-5.4 3 1-6.1-4.4-4.4 6.1-.9z" stroke-linejoin="round"/></svg></button>
+        <button class="pc-star" data-star="2" type="button"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.4 1 6.1L12 17l-5.4 3 1-6.1-4.4-4.4 6.1-.9z" stroke-linejoin="round"/></svg></button>
+        <button class="pc-star" data-star="3" type="button"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.4 1 6.1L12 17l-5.4 3 1-6.1-4.4-4.4 6.1-.9z" stroke-linejoin="round"/></svg></button>
+        <button class="pc-star" data-star="4" type="button"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.4 1 6.1L12 17l-5.4 3 1-6.1-4.4-4.4 6.1-.9z" stroke-linejoin="round"/></svg></button>
+        <button class="pc-star" data-star="5" type="button"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.4 1 6.1L12 17l-5.4 3 1-6.1-4.4-4.4 6.1-.9z" stroke-linejoin="round"/></svg></button>
+      </div>
+      <div style="padding:16px 20px;">
+        <div class="field" style="margin-bottom:12px;">
+          <label for="feedback-text">Tell us more (optional)</label>
+          <textarea id="feedback-text" rows="3"></textarea>
+        </div>
+        <div class="pc-status" id="rate-status"></div>
+        <button type="button" class="btn btn--primary" id="submit-rating-btn">Submit Feedback</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  (function () {
+    var rating = 0;
+    var stars = document.querySelectorAll('.pc-star');
+    stars.forEach(function (star) {
+      star.addEventListener('click', function () {
+        rating = Number(star.getAttribute('data-star'));
+        stars.forEach(function (s) {
+          s.classList.toggle('is-active', Number(s.getAttribute('data-star')) <= rating);
+        });
+      });
+    });
+    document.getElementById('submit-rating-btn').addEventListener('click', function () {
+      var statusEl = document.getElementById('rate-status');
+      if (!rating) {
+        statusEl.textContent = 'Please select a star rating.';
+        statusEl.className = 'pc-status pc-status--error';
+        return;
+      }
+      try {
+        var feedback = JSON.parse(localStorage.getItem('edubook_app_feedback') || '[]');
+        feedback.push({ rating: rating, message: document.getElementById('feedback-text').value.trim(), at: new Date().toISOString() });
+        localStorage.setItem('edubook_app_feedback', JSON.stringify(feedback));
+      } catch (e) {}
+      statusEl.textContent = 'Thanks for your feedback!';
+      statusEl.className = 'pc-status pc-status--ok';
+    });
+  })();
+</script>
+<script src="../assets/js/ai-engine.js"></script>
+<script src="../assets/js/ai-chat-widget.js"></script>
+<script src="../assets/js/nav-drawer.js"></script>
+</body>
+</html>

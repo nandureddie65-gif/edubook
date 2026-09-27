@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduBook &mdash; My Cart</title>
+<script src="../assets/js/theme.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/home.css">
+<link rel="stylesheet" href="../assets/css/books.css">
+<link rel="stylesheet" href="../assets/css/profile.css">
+<link rel="stylesheet" href="../assets/css/ai.css">
+<link rel="stylesheet" href="../assets/css/nav-drawer.css">
+</head>
+<body class="home-body">
+
+<div class="page pc-page">
+  <header class="page-header">
+    <a class="page-header__back" href="profile.html" aria-label="Back to Profile">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </a>
+    <h1 class="page-header__title">My Cart</h1>
+  </header>
+
+  <main class="page-content">
+    <div class="pc-card" id="cart-card"></div>
+
+    <div class="pc-section">
+      <p class="pc-section__title">Add a book</p>
+      <div class="pc-card pc-add-picker">
+        <input type="search" id="add-search" placeholder="Search title, author, or ISBN&hellip;">
+        <div class="pc-list" id="add-results"></div>
+      </div>
+    </div>
+
+    <div class="pc-card pc-cart-summary" id="cart-summary" style="display:none;">
+      <div class="pc-cart-summary__row"><span>Subtotal</span><span id="cart-subtotal">&#8377;0</span></div>
+      <div class="pc-cart-summary__row pc-cart-summary__row--total"><span>Total</span><span id="cart-total">&#8377;0</span></div>
+      <button class="btn btn--primary" id="checkout-btn" type="button">Checkout</button>
+    </div>
+
+    <div class="pc-status pc-status--ok" id="checkout-msg" style="text-align:center;"></div>
+  </main>
+</div>
+
+<script src="../assets/js/books-data.js"></script>
+<script src="../assets/js/store.js"></script>
+<script src="../assets/js/render.js"></script>
+<script src="../assets/js/profile-store.js"></script>
+<script>
+  (function () {
+    var cartCard = document.getElementById('cart-card');
+    var summary = document.getElementById('cart-summary');
+
+    function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+
+    function coverStyle(book) {
+      var c = book.cover || book.coverColors || ['#2A2E35', '#101215'];
+      return 'background:linear-gradient(160deg,' + c[0] + ',' + c[1] + ')';
+    }
+
+    function render() {
+      var items = ProfileStore.getCart();
+      if (!items.length) {
+        cartCard.innerHTML = '<div class="pc-empty">Your cart is empty. Search below to add a book.</div>';
+        summary.style.display = 'none';
+        return;
+      }
+      cartCard.innerHTML = items.map(function (b) {
+        return '' +
+          '<div class="pc-cart-line" data-id="' + esc(b.id) + '">' +
+            '<div class="pc-cart-line__cover" style="' + coverStyle(b) + '">' + Render.coverImgHtml(b, 'S') + '</div>' +
+            '<div class="pc-cart-line__info">' +
+              '<div class="pc-cart-line__title">' + esc(b.title) + '</div>' +
+              '<div class="pc-cart-line__price">\u20b9' + b.unitPrice + ' each</div>' +
+              '<button type="button" class="pc-cart-line__remove" data-remove="' + esc(b.id) + '">Remove</button>' +
+            '</div>' +
+            '<div class="pc-qty">' +
+              '<button type="button" data-dec="' + esc(b.id) + '">&minus;</button>' +
+              '<span>' + b.qty + '</span>' +
+              '<button type="button" data-inc="' + esc(b.id) + '">+</button>' +
+            '</div>' +
+          '</div>';
+      }).join('');
+
+      var total = ProfileStore.getCartTotal();
+      document.getElementById('cart-subtotal').textContent = '\u20b9' + total;
+      document.getElementById('cart-total').textContent = '\u20b9' + total;
+      summary.style.display = 'flex';
+
+      cartCard.querySelectorAll('[data-inc]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var id = btn.getAttribute('data-inc');
+          var line = items.filter(function (i) { return i.id === id; })[0];
+          ProfileStore.updateCartQty(id, (line ? line.qty : 1) + 1);
+          render();
+        });
+      });
+      cartCard.querySelectorAll('[data-dec]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var id = btn.getAttribute('data-dec');
+          var line = items.filter(function (i) { return i.id === id; })[0];
+          var newQty = (line ? line.qty : 1) - 1;
+          if (newQty <= 0) ProfileStore.removeFromCart(id);
+          else ProfileStore.updateCartQty(id, newQty);
+          render();
+        });
+      });
+      cartCard.querySelectorAll('[data-remove]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          ProfileStore.removeFromCart(btn.getAttribute('data-remove'));
+          render();
+        });
+      });
+    }
+
+    render();
+
+    // ---- Add-book search ----
+    var addResults = document.getElementById('add-results');
+    var addSearch = document.getElementById('add-search');
+    function renderResults(query) {
+      var results = ProfileStore.searchAddableBooks(query);
+      if (!results.length) {
+        addResults.innerHTML = '<div class="pc-empty">No books found.</div>';
+        return;
+      }
+      addResults.innerHTML = results.map(function (b) {
+        var price = b.discountPrice != null ? b.discountPrice : b.price;
+        return '' +
+          '<div class="pc-row" data-add="' + esc(b.id) + '" style="cursor:pointer;">' +
+            '<div class="pc-cart-line__cover" style="' + coverStyle(b) + '">' + Render.coverImgHtml(b, 'S') + '</div>' +
+            '<span class="pc-row__body">' +
+              '<span class="pc-row__label">' + esc(b.title) + '</span>' +
+              '<span class="pc-row__sub">' + esc(b.author || '') + ' \u00b7 \u20b9' + price + '</span>' +
+            '</span>' +
+            '<span style="color:var(--pc-green); font-weight:700;">+</span>' +
+          '</div>';
+      }).join('');
+      addResults.querySelectorAll('[data-add]').forEach(function (row) {
+        row.addEventListener('click', function () {
+          var id = row.getAttribute('data-add');
+          var book = ProfileStore.searchAddableBooks(addSearch.value).filter(function (b) { return b.id === id; })[0] ||
+                     ProfileStore.searchAddableBooks('').filter(function (b) { return b.id === id; })[0];
+          ProfileStore.addToCart(id, book, 1);
+          render();
+        });
+      });
+    }
+    renderResults('');
+    var debounceId;
+    addSearch.addEventListener('input', function () {
+      clearTimeout(debounceId);
+      debounceId = setTimeout(function () { renderResults(addSearch.value); }, 150);
+    });
+
+    // ---- Checkout ----
+    document.getElementById('checkout-btn').addEventListener('click', function () {
+      var order = ProfileStore.checkout();
+      var msg = document.getElementById('checkout-msg');
+      if (order) {
+        msg.textContent = 'Order ' + order.id + ' placed! Track it under My Orders.';
+        render();
+        setTimeout(function () { window.location.href = 'orders.html'; }, 900);
+      }
+    });
+  })();
+</script>
+<script src="../assets/js/ai-engine.js"></script>
+<script src="../assets/js/ai-chat-widget.js"></script>
+<script src="../assets/js/nav-drawer.js"></script>
+</body>
+</html>

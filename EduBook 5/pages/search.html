@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="../assets/js/theme.js"></script>
+<title>EduBook &mdash; Smart Search</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/home.css">
+<link rel="stylesheet" href="../assets/css/books.css">
+<link rel="stylesheet" href="../assets/css/profile.css">
+<link rel="stylesheet" href="../assets/css/ai.css">
+<link rel="stylesheet" href="../assets/css/nav-drawer.css">
+</head>
+<body class="home-body">
+
+<div class="page pc-page">
+  <header class="page-header">
+    <a class="page-header__back" href="home.html" aria-label="Back to Home">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </a>
+    <div>
+      <h1 class="page-header__title">Smart Search</h1>
+      <p class="page-header__sub" id="search-count"></p>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <div class="page-search">
+      <svg class="page-search__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 9.5 8.5 3 11l6.5 2.5L12 20l2.5-6.5L21 11l-6.5-2.5L12 2Z"/></svg>
+      <input type="search" id="search-input" placeholder="Try &ldquo;maths book&rdquo;, an author, or an ISBN&hellip;" aria-label="Search books">
+    </div>
+    <p class="pc-app-version" style="margin:-6px 0 4px;">AI-powered: understands typos, abbreviations (e.g. &ldquo;eee&rdquo;, &ldquo;mba&rdquo;), and partial titles.</p>
+
+    <div class="books-grid" id="search-grid"></div>
+
+    <div class="ai-panel" id="ai-insights-panel" style="display:none;">
+      <p class="ai-panel__title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 9.5 8.5 3 11l6.5 2.5L12 20l2.5-6.5L21 11l-6.5-2.5L12 2Z"/></svg>
+        AI Insights on your top match
+      </p>
+      <div id="ai-insights-body"></div>
+    </div>
+
+    <div class="pc-section" id="reco-section" style="display:none;">
+      <p class="pc-section__title">Recommended for you</p>
+      <div class="books-grid" id="reco-grid"></div>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/js/books-data.js"></script>
+<script src="../assets/js/store.js"></script>
+<script src="../assets/js/render.js"></script>
+<script src="../assets/js/ai-engine.js"></script>
+<script src="../assets/js/profile-store.js"></script>
+<script src="../assets/js/ai-chat-widget.js"></script>
+<script>
+  (function () {
+    var input = document.getElementById('search-input');
+    var grid = document.getElementById('search-grid');
+    var countEl = document.getElementById('search-count');
+    var insightsPanel = document.getElementById('ai-insights-panel');
+    var insightsBody = document.getElementById('ai-insights-body');
+    var recoSection = document.getElementById('reco-section');
+    var recoGrid = document.getElementById('reco-grid');
+
+    function allBooks() {
+      if (typeof Store !== 'undefined' && Store.getAllBooks) return Store.getAllBooks();
+      var sets = [];
+      if (typeof CATALOG_BOOKS !== 'undefined') sets.push(CATALOG_BOOKS);
+      if (typeof SELL_BOOKS !== 'undefined') sets.push(SELL_BOOKS);
+      if (typeof UPLOAD_BOOKS !== 'undefined') sets.push(UPLOAD_BOOKS);
+      return [].concat.apply([], sets);
+    }
+
+    function showRecommendations() {
+      var wishlistIds = (typeof Store !== 'undefined' && Store.getWishlist) ? Store.getWishlist() : [];
+      var recos = AIEngine.getRecommendations(allBooks(), { wishlistIds: wishlistIds, limit: 6 });
+      if (recos.length) {
+        recoSection.style.display = 'block';
+        Render.grid(recoGrid, recos);
+      } else {
+        recoSection.style.display = 'none';
+      }
+    }
+
+    async function showInsights(book) {
+      insightsPanel.style.display = 'block';
+      insightsBody.textContent = 'Thinking\u2026';
+      var summary = await AIEngine.summarize(book);
+      insightsBody.innerHTML = '<p style="margin:0; font-size:0.88rem; line-height:1.5;">' + summary.replace(/</g, '&lt;') + '</p>';
+    }
+
+    function runSearch(query) {
+      var q = query.trim();
+      insightsPanel.style.display = 'none';
+      if (!q) {
+        countEl.textContent = '';
+        grid.innerHTML = '<div class="empty-state">Start typing a title, author, or ISBN to search \u2014 or check the recommendations below.</div>';
+        showRecommendations();
+        return;
+      }
+      recoSection.style.display = 'none';
+      var results = AIEngine.smartSearch(q, allBooks());
+      if (!results.length) {
+        countEl.textContent = '';
+        grid.innerHTML = '<div class="empty-state">No books found.<br>Sorry, the book you searched for is not available.</div>';
+        return;
+      }
+      countEl.textContent = results.length + ' result' + (results.length === 1 ? '' : 's') + ' for "' + Render.esc(q) + '"';
+      Render.grid(grid, results);
+      showInsights(results[0]);
+    }
+
+    var params = new URLSearchParams(window.location.search);
+    var initial = params.get('q') || '';
+    input.value = initial;
+    runSearch(initial);
+
+    var debounceId;
+    input.addEventListener('input', function () {
+      clearTimeout(debounceId);
+      debounceId = setTimeout(function () { runSearch(input.value); }, 150);
+    });
+  })();
+</script>
+<script src="../assets/js/nav-drawer.js"></script>
+</body>
+</html>
